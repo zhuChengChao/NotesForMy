@@ -672,4 +672,11 @@ public class Actviti7DemoApplicationTests {
     // 任务：TaskImpl{id='b9fcd5af-fa13-11ec-854e-a41a3ad166de', owner='null', assignee='null', name='审批2', description='null', createdDate=Sat Jul 02 22:31:57 CST 2022, claimedDate=null, dueDate=null, priority=50, processDefinitionId='myProcessDemo:1:9a252244-fa13-11ec-a70a-a41a3ad166de', processInstanceId='9ae209a5-fa13-11ec-a70a-a41a3ad166de', parentTaskId='null', status=CREATED}
     ```
 
-## 3. xxx
+## 3. SpringBoot&Activiti&SpringSecurity&Vue的小Demo
+
+> 直接搭了个框架，具体内容还没看，直接上传Gitee了，后续有需要可细看。
+
+[Gitee地址信息](https://gitee.com/zhuChengChao/workflow)
+
+[视频地址链接：Activiti整合内容](https://www.bilibili.com/video/BV1H54y167gf?p=88)
+
