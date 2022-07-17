@@ -3,6 +3,8 @@
 > 工作中看使用的MyBatis-Plus，虽然说日常开发起来也没遇到啥问题，但还是抽空来系统的学习一下。
 >
 > [Mybatis-plus课程地址](https://www.bilibili.com/video/BV1rE41197jR)
+>
+> [学习代码地址](https://gitee.com/zhuChengChao/my-batis-plus)
 
 ## 1. ActiveRecord  
 
@@ -881,4 +883,159 @@ Execute SQL：
 
 ## 7. 通用枚举
 
-解决了繁琐的配置，让 mybatis 优雅的使用枚举属性！
+解决了繁琐的配置，让 mybatis 优雅的使用枚举属性
+
+**步骤1**：修改表结构
+
+```mysql
+ALTER TABLE `tb_user` ADD COLUMN `sex` int(1) NULL DEFAULT 1 COMMENT '1-男，2-女' AFTER `deleted`;
+```
+
+**步骤2**：定义枚举  
+
+```java
+package cn.xyc.mp.springboot.enums;
+
+import com.baomidou.mybatisplus.core.enums.IEnum;
+
+public enum  SexEnum implements IEnum<Integer>{
+
+    MAN(1, "男"),
+    WOMAN(2, "女"),
+    ;
+
+    private int value;
+    private String desc;
+
+    SexEnum(int value, String desc) {
+        this.value = value;
+        this.desc = desc;
+    }
+
+    @Override
+    public Integer getValue() {
+        return this.value;
+    }
+
+    @Override
+    public String toString() {
+        return "SexEnum{" +
+                "value=" + value +
+                ", desc='" + desc + '\'' +
+                '}';
+    }
+}
+
+```
+
+**步骤3**：application.properties文件中配置以下参数
+
+```properties
+# 枚举包扫描
+mybatis-plus.type-enums-package=cn.xyc.mp.springboot.enums
+```
+
+**步骤4**：修改实体
+
+```java
+private SexEnum sex;
+```
+
+**测试：**
+
+* 测试插入数据：
+
+  ```java
+  @Test
+  public void testEnumInsert(){
+      User user = new User();
+      user.setName("三娘");
+      user.setUserName("sanniang");
+      user.setAge(20);
+      user.setEmail("sanniang@itast.cn");
+      user.setVersion(1);
+      user.setSex(SexEnum.WOMAN);
+      System.out.println(user);
+      int result = this.userMapper.insert(user);
+      System.out.println("result = " + result);
+  }
+  
+  // 对应的sql输出：
+  // INSERT 
+  // INTO
+  //     tb_user
+  //     ( user_name, password, name, age, email, version, sex ) 
+  // VALUES
+  //     ( 'sanniang', '123456', '三娘', 20, 'sanniang@itast.cn', 1, 2 )
+  ```
+
+* 测试查询数据-1：
+
+  ```java
+  @Test
+  public void testSelect(){
+      User result = this.userMapper.selectById(12L);
+      System.out.println("result = " + result);
+  }
+  
+  // 对应的sql输出：
+  // Execute SQL：
+  //     SELECT
+  //         id,
+  //         user_name,
+  //         name,
+  //         age,
+  //         email,
+  //         version,
+  //         deleted,
+  //         sex 
+  //     FROM
+  //         tb_user 
+  //     WHERE
+  //         id=12 
+  //         AND deleted=0
+  // 输出结果:
+  // result = User(id=12, userName=sanniang, password=null, name=三娘, age=20, email=sanniang@itast.cn, version=1, deleted=0, sex=SexEnum{value=2, desc='女'})
+  ```
+
+* 测试查询数据-2：
+
+  ```java
+  @Test
+  public void testSelectBySex() {
+      QueryWrapper<User> wrapper = new QueryWrapper<>();
+      wrapper.eq("sex", SexEnum.WOMAN);
+      List<User> users = this.userMapper.selectList(wrapper);
+      for (User user : users) {
+          System.out.println(user);
+      }
+  }
+  
+  // 对应的sql：
+  // Execute SQL：
+  //     SELECT
+  //         id,
+  //         user_name,
+  //         name,
+  //         age,
+  //         email,
+  //         version,
+  //         deleted,
+  //         sex 
+  //     FROM
+  //         tb_user 
+  //     WHERE
+  //         deleted=0 
+  //         AND sex = 2  -- 可以看到查询条件
+  ```
+
+## 8. MybatisX 快速开发插件  
+
+MybatisX 是一款基于 IDEA 的快速开发插件，为效率而生。
+
+安装方法：打开 IDEA，进入 File -> Settings -> Plugins -> Browse Repositories，输入 mybatisx 搜索并安装。
+
+功能：
+
+* Java 与 XML 调回跳转
+* Mapper 方法自动生成 XML

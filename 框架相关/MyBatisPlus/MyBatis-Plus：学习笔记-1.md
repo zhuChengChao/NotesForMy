@@ -3,6 +3,8 @@
 > 工作中看使用的MyBatis-Plus，虽然说日常开发起来也没遇到啥问题，但还是抽空来系统的学习一下。
 >
 > [Mybatis-plus课程地址](https://www.bilibili.com/video/BV1rE41197jR)
+>
+> [学习代码地址](https://gitee.com/zhuChengChao/my-batis-plus)
 
 ## 1. MyBatis-Plus概述
 
