@@ -881,3 +881,453 @@ System.out.println(beanFactory.getBean(Bean1.class).getInter());
 
 ## 03. Bean的生命周期
 
+一个受 Spring 管理的 bean，生命周期主要阶段有
+
+1. 创建：根据 bean 的构造方法或者工厂方法来创建 bean 实例对象；
+2. 依赖注入：根据 @Autowired，@Value 或其它一些手段，为 bean 的成员变量填充值、建立关系
+3. 初始化：回调各种 Aware 接口，调用对象的各种初始化方法
+4. 销毁：在容器关闭时，会销毁所有单例对象（即调用它们的销毁方法），prototype 对象也能够销毁，不过需要容器这边主动调用
+
+> 一些资料会提到，生命周期中还有一类 bean 后处理器：BeanPostProcessor，会在 bean 的初始化的前后，提供一些扩展逻辑。但这种说法是不完整的，见下方内容；
+
+### 3.1 Bean的生命周期
+
+准备代码：
+
+```java
+package cn.xyc;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+
+@SpringBootApplication
+public class Class03Application {
+
+    public static void main(String[] args) {
+
+        ConfigurableApplicationContext context = SpringApplication.run(Class03Application.class, args);
+        // 关闭容器
+        context.close();
+    }
+}
+
+```
+
+准备一个放入容器中的类：
+
+```java
+package cn.xyc;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+@Slf4j
+@Component
+public class LifeCycleBean {
+
+    public LifeCycleBean() {
+        log.debug("构造函数");
+    }
+
+    @Autowired
+    public void autowire(@Value("${JAVA_HOME}") String home) {
+        log.debug("依赖注入: {}", home);
+    }
+
+    @PostConstruct
+    public void init() {
+        log.debug("初始化");
+    }
+
+    @PreDestroy
+    public void destroy() {
+        log.debug("销毁");
+    }
+}
+```
+
+验证执行顺序：
+
+```java
+[DEBUG] 16:38:04.322 [main] cn.xyc.LifeCycleBean                - 构造函数 
+[DEBUG] 16:38:04.327 [main] cn.xyc.LifeCycleBean                - 依赖注入: C:\Software\Java\jdk1.8.0_241 
+[DEBUG] 16:38:04.328 [main] cn.xyc.LifeCycleBean                - 初始化 
+[DEBUG] 16:38:04.629 [main] cn.xyc.LifeCycleBean                - 销毁
+```
+
+bean的后处理器：
+
+```java
+package cn.xyc;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.PropertyValues;
+import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
+import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import org.springframework.stereotype.Component;
+
+@Slf4j
+@Component
+public class MyBeanPostProcessor implements InstantiationAwareBeanPostProcessor, DestructionAwareBeanPostProcessor {
+
+    @Override
+    public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
+        if (beanName.equals("lifeCycleBean")){
+            log.debug("<<<<<< 销毁之前执行, 如 @PreDestroy");
+        }
+    }
+
+    @Override
+    public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
+        if (beanName.equals("lifeCycleBean")){
+            log.debug("<<<<<< 实例化之前执行, 这里返回的对象会替换掉原本的 bean");
+        }
+        // 返回不为null，会替换原来的bean
+        return null;
+    }
+
+    @Override
+    public boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
+        if (beanName.equals("lifeCycleBean")) {
+            log.debug("<<<<<< 实例化之后执行, 这里如果返回 false 会跳过依赖注入阶段");
+            // return false;
+        }
+        // 返回true，会继续执行后续依赖注入
+        return true;
+    }
+
+    @Override
+    public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) throws BeansException {
+        if (beanName.equals("lifeCycleBean")) {
+            log.debug("<<<<<< 依赖注入阶段执行, 如 @Autowired、@Value、@Resource");
+        }
+        return pvs;
+    }
+
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        if (beanName.equals("lifeCycleBean")) {
+            log.debug("<<<<<< 初始化之前执行, 这里返回的对象会替换掉原本的 bean, 如 @PostConstruct、@ConfigurationProperties");
+        }
+        return bean;
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        if (beanName.equals("lifeCycleBean")) {
+            log.debug("<<<<<< 初始化之后执行, 这里返回的对象会替换掉原本的 bean, 如代理增强");
+        }
+        return bean;
+    }
+}
+```
+
+> 其中：`InstantiationAwareBeanPostProcessor`，`DestructionAwareBeanPostProcessor`，都继承自：`BeanPostProcessor`
+
+运行main方法，输出如下：
+
+```java
+[DEBUG] 16:49:42.828 [main] cn.xyc.MyBeanPostProcessor          - <<<<<< 实例化之前执行, 这里返回的对象会替换掉原本的 bean 
+[DEBUG] 16:49:42.829 [main] cn.xyc.LifeCycleBean                - 构造函数 
+[DEBUG] 16:49:42.831 [main] cn.xyc.MyBeanPostProcessor          - <<<<<< 实例化之后执行, 这里如果返回 false 会跳过依赖注入阶段 
+[DEBUG] 16:49:42.831 [main] cn.xyc.MyBeanPostProcessor          - <<<<<< 依赖注入阶段执行, 如 @Autowired、@Value、@Resource 
+[DEBUG] 16:49:42.833 [main] cn.xyc.LifeCycleBean                - 依赖注入: C:\Software\Java\jdk1.8.0_241 
+[DEBUG] 16:49:42.834 [main] cn.xyc.MyBeanPostProcessor          - <<<<<< 初始化之前执行, 这里返回的对象会替换掉原本的 bean, 如 @PostConstruct、@ConfigurationProperties 
+[DEBUG] 16:49:42.834 [main] cn.xyc.LifeCycleBean                - 初始化 
+[DEBUG] 16:49:42.834 [main] cn.xyc.MyBeanPostProcessor          - <<<<<< 初始化之后执行, 这里返回的对象会替换掉原本的 bean, 如代理增强 
+[DEBUG] 16:49:43.075 [main] cn.xyc.MyBeanPostProcessor          - <<<<<< 销毁之前执行, 如 @PreDestroy 
+[DEBUG] 16:49:43.076 [main] cn.xyc.LifeCycleBean                - 销毁 
+```
+
+### 3.2 模版设计模式
+
+**提高现有代码的扩展能力。**
+
+初始实现：实现Bean工厂
+
+```java
+package cn.xyc;
+
+public class TestMethodTemplate {
+
+    public static void main(String[] args) {
+        MyBeanFactory beanFactory = new MyBeanFactory();
+        beanFactory.getBean();
+    }
+
+    // 模板方法  Template Method Pattern
+    static class MyBeanFactory {
+        public Object getBean() {
+            Object bean = new Object();
+            System.out.println("构造 " + bean);
+            System.out.println("依赖注入 " + bean); // @Autowired, @Resource
+            System.out.println("初始化 " + bean);
+            return bean;
+        }
+    }
+}
+```
+
+问题：扩展性比较弱；优化如下，先来实现一个接口：
+
+```java
+static interface BeanPostProcessor {
+    // 对依赖注入阶段的扩展
+    public void inject(Object bean); 
+}
+```
+
+修改原先代码：对固定不变的内容写在方法中（**静态部分**），对有变化的内容改成接口（**动态部分**）：
+
+```java
+    // 模板方法  Template Method Pattern
+    static class MyBeanFactory {
+        public Object getBean() {
+            Object bean = new Object();
+            System.out.println("构造 " + bean);
+            System.out.println("依赖注入 " + bean); // @Autowired, @Resource
+            for (BeanPostProcessor processor : processors) {
+                processor.inject(bean);
+            }
+            System.out.println("初始化 " + bean);
+            return bean;
+        }
+
+        private List<BeanPostProcessor> processors = new ArrayList<>();
+
+        public void addBeanPostProcessor(BeanPostProcessor processor) {
+            processors.add(processor);
+        }
+    }
+```
+
+修改main方法：
+
+```java
+public static void main(String[] args) {
+    MyBeanFactory beanFactory = new MyBeanFactory();
+    beanFactory.addBeanPostProcessor(processer -> System.out.println("解析 @Autowired"));
+    beanFactory.addBeanPostProcessor(processer -> System.out.println("解析 @Resource"));
+    beanFactory.getBean();
+}
+```
+
+执行输出如下：
+
+```java
+构造 java.lang.Object@4783da3f
+依赖注入 java.lang.Object@4783da3f
+解析 @Autowired
+解析 @Resource
+初始化 java.lang.Object@4783da3f
+```
+
+此时代码的扩展性就较强，当需要加扩展功能时，`getBean`方法无需改动。
+
+## 04. Bean后处理器
+
+### 4.1 Bean后处理器作用
+
+为Bean生命周期各个阶段提供扩展
+
+测试代码构建：
+
+```java
+package cn.xyc;
+
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.support.GenericApplicationContext;
+
+public class Class04Application {
+
+    public static void main(String[] args) {
+
+        // GenericApplicationContext 是一个【干净】的容器
+        GenericApplicationContext context = new GenericApplicationContext();
+
+        // 用原始方法注册三个 bean
+        context.registerBean("bean1", Bean1.class);
+        context.registerBean("bean2", Bean2.class);
+        context.registerBean("bean3", Bean3.class);
+
+        // 初始化容器
+        context.refresh(); // 执行beanFactory后处理器, 添加bean后处理器, 初始化所有单例
+
+        // 销毁容器
+        context.close();
+    }
+}
+
+// Bean1.class，这里加了很多的打印信息
+package cn.xyc;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
+
+@Slf4j
+public class Bean1 {
+
+    private Bean2 bean2;
+
+    @Autowired
+    public void setBean2(Bean2 bean2) {
+        log.debug("@Autowired 生效: {}", bean2);
+        this.bean2 = bean2;
+    }
+
+    @Autowired
+    private Bean3 bean3;
+
+    @Resource
+    public void setBean3(Bean3 bean3) {
+        log.debug("@Resource 生效: {}", bean3);
+        this.bean3 = bean3;
+    }
+
+    private String home;
+
+    @Autowired
+    public void setHome(@Value("${JAVA_HOME}") String home) {
+        log.debug("@Value 生效: {}", home);
+        this.home = home;
+    }
+
+    @PostConstruct
+    public void init() {
+        log.debug("@PostConstruct 生效");
+    }
+
+    @PreDestroy
+    public void destroy() {
+        log.debug("@PreDestroy 生效");
+    }
+
+    @Override
+    public String toString() {
+        return "Bean1{" +
+               "bean2=" + bean2 +
+               ", bean3=" + bean3 +
+               ", home='" + home + '\'' +
+               '}';
+    }
+}
+
+// Bean2.class
+package cn.xyc;
+
+public class Bean2 {
+}
+
+// Bean3.class
+package cn.xyc;
+
+public class Bean3 {
+}
+```
+
+执行main方法后，并无Bean被注入的输出内容；继续往context中加入内容：
+
+```java
+context.getDefaultListableBeanFactory().setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver());
+// 在依赖注入阶段解析@Autowired @Value
+context.registerBean(AutowiredAnnotationBeanPostProcessor.class);
+```
+
+执行main方法，输出如下：
+
+```java
+[DEBUG] 18:00:40.209 [main] cn.xyc.Bean1     - @Autowired 生效: cn.xyc.Bean2@7fe8ea47 
+[DEBUG] 18:00:40.221 [main] cn.xyc.Bean1     - @Value 生效: C:\Software\Java\jdk1.8.0_241 
+```
+
+继续添加后处理器：
+
+```java
+// 在依赖注入前解析@Resource 初始化前解析@PostConstruct 销毁前解析@PreDestroy
+context.registerBean(CommonAnnotationBeanPostProcessor.class);
+```
+
+执行main方法，输出如下：
+
+```java
+[DEBUG] 18:01:05.439 [main] cn.xyc.Bean1       - @Resource 生效: cn.xyc.Bean3@3b2c72c2 
+[DEBUG] 18:01:05.446 [main] cn.xyc.Bean1       - @Autowired 生效: cn.xyc.Bean2@145eaa29 
+[DEBUG] 18:01:05.455 [main] cn.xyc.Bean1       - @Value 生效: C:\Software\Java\jdk1.8.0_241 
+[DEBUG] 18:01:05.455 [main] cn.xyc.Bean1       - @PostConstruct 生效 
+[DEBUG] 18:01:05.460 [main] cn.xyc.Bean1       - @PreDestroy 生效 
+```
+
+> 看下上面的输出顺序：`@Resource` 先生效再生效 `@Autowired`，因为这里`CommonAnnotationBeanPostProcessor` 排在 `AutowiredAnnotationBeanPostProcessor` 前面
+
+再看下 SpringBoot 中的后处理器：添加`Bean4.class`
+
+```java
+/*
+    java.home=
+    java.version=
+ */
+@Data
+@ConfigurationProperties(prefix = "java")  // 前缀匹配
+public class Bean4 {
+    // java.home
+    private String home;
+	// java.version
+    private String version;
+}
+```
+
+让容器中放入 `Bean4.class`，放入后获取下是否注入：
+
+```java
+context.registerBean("bean4", Bean4.class);
+// ...
+System.out.println(context.getBean(Bean1.class));
+// 输出如下：Bean4(home=null, version=null)
+```
+
+加上后处理器，注册，再次测试，完整代码如下：
+
+```java
+// GenericApplicationContext 是一个【干净】的容器
+GenericApplicationContext context = new GenericApplicationContext();
+
+// 用原始方法注册三个 bean
+context.registerBean("bean1", Bean1.class);
+context.registerBean("bean2", Bean2.class);
+context.registerBean("bean3", Bean3.class);
+context.registerBean("bean4", Bean4.class);
+
+context.getDefaultListableBeanFactory().setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver());
+// 在依赖注入阶段解析@Autowired @Value
+context.registerBean(AutowiredAnnotationBeanPostProcessor.class);
+// 在依赖注入前解析@Resource 初始化前解析@PostConstruct 销毁前解析@PreDestroy
+context.registerBean(CommonAnnotationBeanPostProcessor.class);
+// Springboot的一个后处理器，使得注解@ConfigurationProperties注解起作用，在初始化前解析
+ConfigurationPropertiesBindingPostProcessor.register(context.getDefaultListableBeanFactory());
+
+// 初始化容器
+context.refresh(); // 执行beanFactory后处理器, 添加bean后处理器, 初始化所有单例
+// 判断Springboot的后处理器是否生效
+System.out.println(context.getBean(Bean4.class));
+// 输出如下：Bean4(home=C:\Software\Java\jdk1.8.0_241\jre, version=1.8.0_241)
+
+// 销毁容器
+context.close();
+```
+
+### 4.2 常见的后处理器
+
+
+
