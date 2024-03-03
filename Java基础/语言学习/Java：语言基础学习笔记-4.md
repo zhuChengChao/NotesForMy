@@ -142,7 +142,7 @@ public class ThrowDemo {
 
 > 注意：如果产生了问题，我们就会throw将问题描述类即异常进行抛出，也就是将问题返回给该方法的调用者。
 >
-> 那么对于调用者来说，该怎么处理呢？一种是进行捕获处理，另一种就是继续讲问题声明出去，使用throws声明处理。
+> 那么对于调用者来说，该怎么处理呢？一种是进行捕获处理，另一种就是继续将问题声明出去，使用throws声明处理。
 
 #### 16.2.2 Objects非空判断
 
@@ -450,9 +450,8 @@ public class Demo {
 * **分时调度**：所有线程轮流使用 CPU 的使用权，平均分配每个线程占用 CPU 的时间。
 
 * **抢占式调度**：优先让优先级高的线程使用 CPU，如果线程的优先级相同，那么会随机选择一个(线程随机性)，Java使用的为抢占式调度。
-
   * 设置线程的优先级：可以在任务管理器的详细信息栏中选择相应的线程右击设置优先级；
-
+  
   * 抢占式调度详解
     
 
@@ -1312,7 +1311,9 @@ Executors类中有个创建线程池的方法如下：
 
 * `public Future<?> submit(Runnable task)` :获取线程池中的某一个线程对象，并执行
 
-> Future接口：用来记录线程任务执行完毕后产生的结果。线程池创建与使用。
+> Future接口：用来记录线程任务执行完毕后产生的结果。
+
+**线程池创建与使用**
 
 使用线程池中线程对象的步骤：
 
@@ -1333,7 +1334,8 @@ public class MyRunnable implements Runnable {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } System.out.println("教练来了： " + Thread.currentThread().getName());
+        } 
+        System.out.println("教练来了： " + Thread.currentThread().getName());
         System.out.println("教我游泳,交完后，教练回到了游泳池");
     }
 }

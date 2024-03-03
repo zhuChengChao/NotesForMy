@@ -1395,8 +1395,8 @@ public class ExtendsDemo06 {
     public static void main(String[] args) {
         // 创建子类对象
         NewPhone np = new NewPhone()；
-            // 调用父类继承而来的方法
-            np.call();
+        // 调用父类继承而来的方法
+        np.call();
         // 调用子类重写的方法
         np.showNum();
     }
@@ -1428,6 +1428,7 @@ class Fu {
         System.out.println("Fu()");
     }
 }
+
 class Zi extends Fu {
     Zi(){
         // super（），调用父类构造方法
@@ -1439,6 +1440,7 @@ class Zi extends Fu {
         Zi zi = new Zi();
     }
 } 
+
 // 输出结果：
 Fu()
 Zi()

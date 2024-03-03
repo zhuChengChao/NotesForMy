@@ -1104,7 +1104,7 @@ public class Demo12ArrayInitRef {
 
 **Constructor:构造方法**
 
-* *创建对象：**
+* **创建对象：**
   * `T newInstance(Object... initargs)  `
   * 如果使用空参数构造方法创建对象，操作可以简化：`Class.newInstance()`方法
 
@@ -1271,15 +1271,16 @@ public @interface 注解名称{
 
    ```java
    getAnnotation(Class)
-       //其实就是在内存中生成了一个该注解接口的子类实现对象
-       public class ProImpl implements Pro{
-           public String className(){
-               return "cn.itcast.annotation.Demo1";
-           }
-           public String methodName(){
-               return "show";
-           }
+       
+   //其实就是在内存中生成了一个该注解接口的子类实现对象
+   public class ProImpl implements Pro{
+       public String className(){
+           return "cn.itcast.annotation.Demo1";
        }
+       public String methodName(){
+           return "show";
+       }
+   }
    ```
 
 3. 调用注解中的抽象方法获取配置的属性值

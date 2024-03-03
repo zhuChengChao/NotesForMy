@@ -1031,7 +1031,7 @@ public class BufferedDemo {
 
 **构造方法**
 
-* `public BufferedReader(Reader in)`：创建一个 新的缓冲输入流。
+* `public BufferedReader(Reader in)`：创建一个新的缓冲输入流。
 * `public BufferedWriter(Writer out)` ： 创建一个新的缓冲输出流。
 
 构造举例，代码如下：
@@ -2278,7 +2278,7 @@ public class Demo04Runnable {
 }
 ```
 
-类似地，如果一个方法的返回值类型是一个函数式接口，那么就可以直接返回一个Lambda表达式。当需要通过一个方法来获取一个 java.util.Comparator 接口类型的对象作为排序器时,就可以调该方法获取。
+类似地，如果一个方法的返回值类型是一个函数式接口，那么就可以直接返回一个Lambda表达式。当需要通过一个方法来获取一个 java.util.Comparator 接口类型的对象作为排序器时，就可以调该方法获取。
 
 ```java
 import java.util.Arrays;
