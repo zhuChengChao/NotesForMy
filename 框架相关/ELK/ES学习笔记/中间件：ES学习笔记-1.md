@@ -749,7 +749,35 @@ match 匹配类型查询，会把查询条件进行分词，然后进行查询�
 服务器响应结果为：
 
 ```json
-{"took":0,"timed_out":false,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0},"hits":{"total":{"value":1,"relation":"eq"},"max_score":1.3862942,"hits":[{"_index":"student","_type":"_doc","_id":"1001","_score":1.3862942,"_source":{ "name":"zhangsan", "nickname":"zhangsan", "sex":"男", "age":30 }}]}}
+{
+	"took": 0,
+	"timed_out": false,
+	"_shards": {
+		"total": 1,
+		"successful": 1,
+		"skipped": 0,
+		"failed": 0
+	},
+	"hits": {
+		"total": {
+			"value": 1,
+			"relation": "eq"
+		},
+		"max_score": 1.3862942,
+		"hits": [{
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1001",
+			"_score": 1.3862942,
+			"_source": {
+				"name": "zhangsan",
+				"nickname": "zhangsan",
+				"sex": "男",
+				"age": 30
+			}
+		}]
+	}
+}
 ```
 
 ##### **3) 字段匹配查询**
@@ -772,7 +800,35 @@ multi_match 与 match 类似，不同的是它可以在多个字段中查询。
 服务器响应结果：
 
 ```json
-{"took":1,"timed_out":false,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0},"hits":{"total":{"value":1,"relation":"eq"},"max_score":1.3862942,"hits":[{"_index":"student","_type":"_doc","_id":"1001","_score":1.3862942,"_source":{ "name":"zhangsan", "nickname":"zhangsan", "sex":"男", "age":30 }}]}}
+{
+	"took": 1,
+	"timed_out": false,
+	"_shards": {
+		"total": 1,
+		"successful": 1,
+		"skipped": 0,
+		"failed": 0
+	},
+	"hits": {
+		"total": {
+			"value": 1,
+			"relation": "eq"
+		},
+		"max_score": 1.3862942,
+		"hits": [{
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1001",
+			"_score": 1.3862942,
+			"_source": {
+				"name": "zhangsan",
+				"nickname": "zhangsan",
+				"sex": "男",
+				"age": 30
+			}
+		}]
+	}
+}
 ```
 
 ##### **4) 关键字精确查询**
@@ -796,7 +852,35 @@ term 查询，精确的关键词匹配查询，不对查询条件进行分词。
 服务器响应结果：
 
 ```json
-{"took":0,"timed_out":false,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0},"hits":{"total":{"value":1,"relation":"eq"},"max_score":1.3862942,"hits":[{"_index":"student","_type":"_doc","_id":"1001","_score":1.3862942,"_source":{ "name":"zhangsan", "nickname":"zhangsan", "sex":"男", "age":30 }}]}}
+{
+	"took": 0,
+	"timed_out": false,
+	"_shards": {
+		"total": 1,
+		"successful": 1,
+		"skipped": 0,
+		"failed": 0
+	},
+	"hits": {
+		"total": {
+			"value": 1,
+			"relation": "eq"
+		},
+		"max_score": 1.3862942,
+		"hits": [{
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1001",
+			"_score": 1.3862942,
+			"_source": {
+				"name": "zhangsan",
+				"nickname": "zhangsan",
+				"sex": "男",
+				"age": 30
+			}
+		}]
+	}
+}
 ```
 
 ##### **5) 多关键字精确查询**
@@ -818,7 +902,46 @@ terms 查询和 term 查询一样，但它允许你指定多值进行匹配。�
 服务器响应结果：  
 
 ```json
-{"took":2,"timed_out":false,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0},"hits":{"total":{"value":2,"relation":"eq"},"max_score":1.0,"hits":[{"_index":"student","_type":"_doc","_id":"1001","_score":1.0,"_source":{ "name":"zhangsan", "nickname":"zhangsan", "sex":"男", "age":30 }},{"_index":"student","_type":"_doc","_id":"1002","_score":1.0,"_source":{ "name":"lisi", "nickname":"lisi", "sex":"男", "age":20 }}]}}
+{
+	"took": 2,
+	"timed_out": false,
+	"_shards": {
+		"total": 1,
+		"successful": 1,
+		"skipped": 0,
+		"failed": 0
+	},
+	"hits": {
+		"total": {
+			"value": 2,
+			"relation": "eq"
+		},
+		"max_score": 1.0,
+		"hits": [{
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1001",
+			"_score": 1.0,
+			"_source": {
+				"name": "zhangsan",
+				"nickname": "zhangsan",
+				"sex": "男",
+				"age": 30
+			}
+		}, {
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1002",
+			"_score": 1.0,
+			"_source": {
+				"name": "lisi",
+				"nickname": "lisi",
+				"sex": "男",
+				"age": 20
+			}
+		}]
+	}
+}
 ```
 
 ##### **6) 指定查询字段**
@@ -979,7 +1102,7 @@ terms 查询和 term 查询一样，但它允许你指定多值进行匹配。�
 
 ##### **8) 组合查询**
 
-> 这里需要注意的是创建的 student 索引，对于 age 和 sex 是没有创建缩影的，即index=false，删了之后再重建一下吧...
+> 这里需要注意的是创建的 student 索引，对于 age 和 sex 是没有创建索引的，即index=false，删了之后再重建一下吧...
 
 `bool`把各种其它查询通过`must`（必须）、 `must_not`（必须不）、 `should`（应该）的方式进行组合
 
@@ -1080,7 +1203,46 @@ range 查询找出那些落在指定区间内的数字或者时间，range 查�
 服务器响应结果：  
 
 ```json
-{"took":0,"timed_out":false,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0},"hits":{"total":{"value":2,"relation":"eq"},"max_score":1.0,"hits":[{"_index":"student","_type":"_doc","_id":"1001","_score":1.0,"_source":{ "name":"zhangsan", "nickname":"zhangsan", "sex":"男", "age":30 }},{"_index":"student","_type":"_doc","_id":"1005","_score":1.0,"_source":{ "name":"zhangsan2", "nickname":"zhangsan2", "sex":"女", "age":30 }}]}}
+{
+	"took": 0,
+	"timed_out": false,
+	"_shards": {
+		"total": 1,
+		"successful": 1,
+		"skipped": 0,
+		"failed": 0
+	},
+	"hits": {
+		"total": {
+			"value": 2,
+			"relation": "eq"
+		},
+		"max_score": 1.0,
+		"hits": [{
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1001",
+			"_score": 1.0,
+			"_source": {
+				"name": "zhangsan",
+				"nickname": "zhangsan",
+				"sex": "男",
+				"age": 30
+			}
+		}, {
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1005",
+			"_score": 1.0,
+			"_source": {
+				"name": "zhangsan2",
+				"nickname": "zhangsan2",
+				"sex": "女",
+				"age": 30
+			}
+		}]
+	}
+}
 ```
 
 ##### **10) 模糊查询**
@@ -1115,7 +1277,57 @@ range 查询找出那些落在指定区间内的数字或者时间，range 查�
 服务器响应结果：  
 
 ```json
-{"took":3,"timed_out":false,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0},"hits":{"total":{"value":3,"relation":"eq"},"max_score":1.3862942,"hits":[{"_index":"student","_type":"_doc","_id":"1001","_score":1.3862942,"_source":{ "name":"zhangsan", "nickname":"zhangsan", "sex":"男", "age":30 }},{"_index":"student","_type":"_doc","_id":"1004","_score":1.2130076,"_source":{ "name":"zhangsan1", "nickname":"zhangsan1", "sex":"女", "age":50 }},{"_index":"student","_type":"_doc","_id":"1005","_score":1.2130076,"_source":{ "name":"zhangsan2", "nickname":"zhangsan2", "sex":"女", "age":30 }}]}}
+{
+	"took": 3,
+	"timed_out": false,
+	"_shards": {
+		"total": 1,
+		"successful": 1,
+		"skipped": 0,
+		"failed": 0
+	},
+	"hits": {
+		"total": {
+			"value": 3,
+			"relation": "eq"
+		},
+		"max_score": 1.3862942,
+		"hits": [{
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1001",
+			"_score": 1.3862942,
+			"_source": {
+				"name": "zhangsan",
+				"nickname": "zhangsan",
+				"sex": "男",
+				"age": 30
+			}
+		}, {
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1004",
+			"_score": 1.2130076,
+			"_source": {
+				"name": "zhangsan1",
+				"nickname": "zhangsan1",
+				"sex": "女",
+				"age": 50
+			}
+		}, {
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1005",
+			"_score": 1.2130076,
+			"_source": {
+				"name": "zhangsan2",
+				"nickname": "zhangsan2",
+				"sex": "女",
+				"age": 30
+			}
+		}]
+	}
+}
 ```
 
 在 Postman 中，向 ES 服务器发 GET 请求 ： http://127.0.0.1:9200/student/_search
@@ -1136,7 +1348,57 @@ range 查询找出那些落在指定区间内的数字或者时间，range 查�
 服务器响应结果：  
 
 ```json
-{"took":2,"timed_out":false,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0},"hits":{"total":{"value":3,"relation":"eq"},"max_score":1.3862942,"hits":[{"_index":"student","_type":"_doc","_id":"1001","_score":1.3862942,"_source":{ "name":"zhangsan", "nickname":"zhangsan", "sex":"男", "age":30 }},{"_index":"student","_type":"_doc","_id":"1004","_score":1.2130076,"_source":{ "name":"zhangsan1", "nickname":"zhangsan1", "sex":"女", "age":50 }},{"_index":"student","_type":"_doc","_id":"1005","_score":1.2130076,"_source":{ "name":"zhangsan2", "nickname":"zhangsan2", "sex":"女", "age":30 }}]}}
+{
+	"took": 2,
+	"timed_out": false,
+	"_shards": {
+		"total": 1,
+		"successful": 1,
+		"skipped": 0,
+		"failed": 0
+	},
+	"hits": {
+		"total": {
+			"value": 3,
+			"relation": "eq"
+		},
+		"max_score": 1.3862942,
+		"hits": [{
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1001",
+			"_score": 1.3862942,
+			"_source": {
+				"name": "zhangsan",
+				"nickname": "zhangsan",
+				"sex": "男",
+				"age": 30
+			}
+		}, {
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1004",
+			"_score": 1.2130076,
+			"_source": {
+				"name": "zhangsan1",
+				"nickname": "zhangsan1",
+				"sex": "女",
+				"age": 50
+			}
+		}, {
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1005",
+			"_score": 1.2130076,
+			"_source": {
+				"name": "zhangsan2",
+				"nickname": "zhangsan2",
+				"sex": "女",
+				"age": 30
+			}
+		}]
+	}
+}
 ```
 
 ##### **11) 单字段排序**
@@ -1161,7 +1423,84 @@ sort 可以让我们按照不同的字段进行排序，并且通过 order 指�
 服务器响应结果：
 
 ```json
-{"took":2,"timed_out":false,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0},"hits":{"total":{"value":5,"relation":"eq"},"max_score":null,"hits":[{"_index":"student","_type":"_doc","_id":"1004","_score":null,"_source":{ "name":"zhangsan1", "nickname":"zhangsan1", "sex":"女", "age":50 },"sort":[50]},{"_index":"student","_type":"_doc","_id":"1003","_score":null,"_source":{ "name":"wangwu", "nickname":"wangwu", "sex":"女", "age":40 },"sort":[40]},{"_index":"student","_type":"_doc","_id":"1001","_score":null,"_source":{ "name":"zhangsan", "nickname":"zhangsan", "sex":"男", "age":30 },"sort":[30]},{"_index":"student","_type":"_doc","_id":"1005","_score":null,"_source":{ "name":"zhangsan2", "nickname":"zhangsan2", "sex":"女", "age":30 },"sort":[30]},{"_index":"student","_type":"_doc","_id":"1002","_score":null,"_source":{ "name":"lisi", "nickname":"lisi", "sex":"男", "age":20 },"sort":[20]}]}}
+{
+	"took": 2,
+	"timed_out": false,
+	"_shards": {
+		"total": 1,
+		"successful": 1,
+		"skipped": 0,
+		"failed": 0
+	},
+	"hits": {
+		"total": {
+			"value": 5,
+			"relation": "eq"
+		},
+		"max_score": null,
+		"hits": [{
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1004",
+			"_score": null,
+			"_source": {
+				"name": "zhangsan1",
+				"nickname": "zhangsan1",
+				"sex": "女",
+				"age": 50
+			},
+			"sort": [50]
+		}, {
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1003",
+			"_score": null,
+			"_source": {
+				"name": "wangwu",
+				"nickname": "wangwu",
+				"sex": "女",
+				"age": 40
+			},
+			"sort": [40]
+		}, {
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1001",
+			"_score": null,
+			"_source": {
+				"name": "zhangsan",
+				"nickname": "zhangsan",
+				"sex": "男",
+				"age": 30
+			},
+			"sort": [30]
+		}, {
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1005",
+			"_score": null,
+			"_source": {
+				"name": "zhangsan2",
+				"nickname": "zhangsan2",
+				"sex": "女",
+				"age": 30
+			},
+			"sort": [30]
+		}, {
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1002",
+			"_score": null,
+			"_source": {
+				"name": "lisi",
+				"nickname": "lisi",
+				"sex": "男",
+				"age": 20
+			},
+			"sort": [20]
+		}]
+	}
+}
 ```
 
 ##### **12) 多字段排序**
@@ -1193,7 +1532,84 @@ sort 可以让我们按照不同的字段进行排序，并且通过 order 指�
 服务器响应结果： 
 
 ```json
-{"took":1,"timed_out":false,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0},"hits":{"total":{"value":5,"relation":"eq"},"max_score":null,"hits":[{"_index":"student","_type":"_doc","_id":"1004","_score":1.0,"_source":{ "name":"zhangsan1", "nickname":"zhangsan1", "sex":"女", "age":50 },"sort":[50,1.0]},{"_index":"student","_type":"_doc","_id":"1003","_score":1.0,"_source":{ "name":"wangwu", "nickname":"wangwu", "sex":"女", "age":40 },"sort":[40,1.0]},{"_index":"student","_type":"_doc","_id":"1001","_score":1.0,"_source":{ "name":"zhangsan", "nickname":"zhangsan", "sex":"男", "age":30 },"sort":[30,1.0]},{"_index":"student","_type":"_doc","_id":"1005","_score":1.0,"_source":{ "name":"zhangsan2", "nickname":"zhangsan2", "sex":"女", "age":30 },"sort":[30,1.0]},{"_index":"student","_type":"_doc","_id":"1002","_score":1.0,"_source":{ "name":"lisi", "nickname":"lisi", "sex":"男", "age":20 },"sort":[20,1.0]}]}}
+{
+	"took": 1,
+	"timed_out": false,
+	"_shards": {
+		"total": 1,
+		"successful": 1,
+		"skipped": 0,
+		"failed": 0
+	},
+	"hits": {
+		"total": {
+			"value": 5,
+			"relation": "eq"
+		},
+		"max_score": null,
+		"hits": [{
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1004",
+			"_score": 1.0,
+			"_source": {
+				"name": "zhangsan1",
+				"nickname": "zhangsan1",
+				"sex": "女",
+				"age": 50
+			},
+			"sort": [50, 1.0]
+		}, {
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1003",
+			"_score": 1.0,
+			"_source": {
+				"name": "wangwu",
+				"nickname": "wangwu",
+				"sex": "女",
+				"age": 40
+			},
+			"sort": [40, 1.0]
+		}, {
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1001",
+			"_score": 1.0,
+			"_source": {
+				"name": "zhangsan",
+				"nickname": "zhangsan",
+				"sex": "男",
+				"age": 30
+			},
+			"sort": [30, 1.0]
+		}, {
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1005",
+			"_score": 1.0,
+			"_source": {
+				"name": "zhangsan2",
+				"nickname": "zhangsan2",
+				"sex": "女",
+				"age": 30
+			},
+			"sort": [30, 1.0]
+		}, {
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1002",
+			"_score": 1.0,
+			"_source": {
+				"name": "lisi",
+				"nickname": "lisi",
+				"sex": "男",
+				"age": 20
+			},
+			"sort": [20, 1.0]
+		}]
+	}
+}
 ```
 
 ##### **13) 高亮查询**
@@ -1295,7 +1711,48 @@ size：每页显示多少条
 服务器响应结果：  
 
 ```json
-{"took":2,"timed_out":false,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0},"hits":{"total":{"value":5,"relation":"eq"},"max_score":null,"hits":[{"_index":"student","_type":"_doc","_id":"1004","_score":null,"_source":{ "name":"zhangsan1", "nickname":"zhangsan1", "sex":"女", "age":50 },"sort":[50]},{"_index":"student","_type":"_doc","_id":"1003","_score":null,"_source":{ "name":"wangwu", "nickname":"wangwu", "sex":"女", "age":40 },"sort":[40]}]}}
+{
+	"took": 2,
+	"timed_out": false,
+	"_shards": {
+		"total": 1,
+		"successful": 1,
+		"skipped": 0,
+		"failed": 0
+	},
+	"hits": {
+		"total": {
+			"value": 5,
+			"relation": "eq"
+		},
+		"max_score": null,
+		"hits": [{
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1004",
+			"_score": null,
+			"_source": {
+				"name": "zhangsan1",
+				"nickname": "zhangsan1",
+				"sex": "女",
+				"age": 50
+			},
+			"sort": [50]
+		}, {
+			"_index": "student",
+			"_type": "_doc",
+			"_id": "1003",
+			"_score": null,
+			"_source": {
+				"name": "wangwu",
+				"nickname": "wangwu",
+				"sex": "女",
+				"age": 40
+			},
+			"sort": [40]
+		}]
+	}
+}
 ```
 
 #### 2.2.5 HTTP 操作之聚合查询
@@ -1394,12 +1851,14 @@ size：每页显示多少条
 
 ```json
 {
-"aggs":{
-"sum_age":{
-"sum":{"field":"age"}
-}
-},
-"size":0
+	"aggs": {
+		"sum_age": {
+			"sum": {
+				"field": "age"
+			}
+		}
+	},
+	"size": 0
 }
 ```
 

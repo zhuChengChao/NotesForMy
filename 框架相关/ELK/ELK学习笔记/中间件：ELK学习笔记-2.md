@@ -915,7 +915,7 @@ es内部主从同步时，是多线程异步。乐观锁机制。
 * **客户端2并发修改，带版本号**
 
   ```json
-  PUT /test_index/_doc/5?if_seq_no=21&if_primary_term=1
+  PUT /test_index/_doc/5?if_seq_no=12&if_primary_term=1
   {
   	"test_field": "itcast1"
   }
@@ -1427,7 +1427,7 @@ heima:
 >            <appender-ref ref="FILE"/>
 >        </appender>
 > 
->     <logger name="org.apache.ibatis.cache.decorators.LoggingCache" level="DEBUG" additivity="false">
+>     	<logger name="org.apache.ibatis.cache.decorators.LoggingCache" level="DEBUG" additivity="false">
 >            <appender-ref ref="CONSOLE"/>
 >        </logger>
 >        
@@ -1615,9 +1615,9 @@ public void testAdd() throws IOException {
 
 
 
-    // 2. 执行同步方式
+    // 2.1 执行同步方式
     IndexResponse indexResponse = client.index(request, RequestOptions.DEFAULT);
-    // 异步方式
+    // 2.2 异步方式
     // ActionListener<IndexResponse> listener=new ActionListener<IndexResponse>() {
     //     @Override
     //     public void onResponse(IndexResponse indexResponse) {

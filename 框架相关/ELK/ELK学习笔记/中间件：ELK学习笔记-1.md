@@ -4,7 +4,7 @@
 >
 > 在 bilibili 上搜了一个课程，课程地址：[黑马：ELK高级搜索](https://www.bilibili.com/video/BV1Nt4y1m7qL)，跟着视频也做了些笔记，总的分了7篇，此为1/7篇。
 >
-> 学的很草率...空了再来完善:cry:
+> > 学的很草率...空了再来完善:cry:
 
 ## 1. 概述
 
@@ -247,7 +247,7 @@ Elasticsearch：基于Lucene，封装了许多 Lucene 底层功能，提供简�
 
    每个索引里都可以有一个或多个 type，type 是 index 中的一个逻辑数据分类，一个 type 下的 document，都有相同的 field。
 
-   **注意**：6.0 之前的版本有 type（类型）概念，type 相当于关系数据库的表，ES 官方将在 ES9.0 版本中彻底删除 type。**本教程 typy 都为 _doc**。
+   **注意**：6.0 之前的版本有 type（类型）概念，type 相当于关系数据库的表，ES 官方将在 ES9.0 版本中彻底删除 type。**本教程 type 都为 _doc**。
 
 8. **shard：分片**
 

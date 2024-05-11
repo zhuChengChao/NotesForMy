@@ -768,59 +768,52 @@ PUT my_index
        "title": "my first article"
    }
    
-   ```
-
-// 插入后报错：
+   // 插入后报错：
    {
-    "error" : {
-           "root_cause" : [
-               {
-                   "type" : "mapper_parsing_exception",
-                   "reason" : "failed to parse field [title] of type [date] in document with id '3'. Preview of field's value: 'my first article'"
-               }
-           ],
-           "type" : "mapper_parsing_exception",
-           "reason" : "failed to parse field [title] of type [date] in document with id '3'. Preview of field's value: 'my first article'",
-           "caused_by" : {
-               "type" : "illegal_argument_exception",
-               "reason" : "failed to parse date field [my first article] with format [strict_date_optional_time||epoch_millis]",
-               "caused_by" : {
-                   "type" : "date_time_parse_exception",
-                   "reason" : "Failed to parse with all enclosed parsers"
-               }
-           }
-       },
-       "status" : 400
+   	"error": {
+   		"root_cause": [{
+   			"type": "mapper_parsing_exception",
+   			"reason": "failed to parse field [title] of type [date] in document with id '3'. Preview of field's value: 'my first article'"
+   		}],
+   		"type": "mapper_parsing_exception",
+   		"reason": "failed to parse field [title] of type [date] in document with id '3'. Preview of field's value: 'my first article'",
+   		"caused_by": {
+   			"type": "illegal_argument_exception",
+   			"reason": "failed to parse date field [my first article] with format [strict_date_optional_time||epoch_millis]",
+   			"caused_by": {
+   				"type": "date_time_parse_exception",
+   				"reason": "Failed to parse with all enclosed parsers"
+   			}
+   		}
+   	},
+   	"status": 400
    }
    ```
-   
+
 3. 如果此时想修改title的类型，是不可能的
 
    ```json
    PUT /my_index/_mapping
    {
-       "properties": {
-           "title": {
-               "type": "text"
-           }
-       }
+   	"properties": {
+   		"title": {
+   			"type": "text"
+   		}
+   	}
    }
    
-// 修改类型：报错
+   // 修改类型：报错
    {
-    "error" : {
-           "root_cause" : [
-               {
-                   "type" : "illegal_argument_exception",
-                   "reason" : "mapper [title] of different type, current_type [date], merged_type [text]"
-               }
-           ],
-           "type" : "illegal_argument_exception",
-           "reason" : "mapper [title] of different type, current_type [date], merged_type [text]"
-       },
-       "status" : 400
+   	"error": {
+   		"root_cause": [{
+   			"type": "illegal_argument_exception",
+   			"reason": "mapper [title] of different type, current_type [date], merged_type [text]"
+   		}],
+   		"type": "illegal_argument_exception",
+   		"reason": "mapper [title] of different type, current_type [date], merged_type [text]"
+   	},
+   	"status": 400
    }
-   
    ```
 
 4. 此时，唯一的办法，就是进行 reindex，也就是说，重新建立一个索引，将旧索引的数据查询出来，再导入新索引。
@@ -859,39 +852,35 @@ PUT my_index
        "size": 20
    }
    
-   ```
-
-// 返回：
+   // 返回：
    {
-    "_scroll_id": "DnF1ZXJ5VGhlbkZldGNoBQAAAAAAADpAFjRvbnNUWVZaVGpHdklqOV9zcFd6MncAAAAAAAA6QRY0b25zVFlWWlRqR3ZJajlfc3BXejJ3AAAAAAAAOkIWNG9uc1RZVlpUakd2SWo5X3NwV3oydwAAAAAAADpDFjRvbnNUWVZaVGpHdklqOV9zcFd6MncAAAAAAAA6RBY0b25zVFlWWlRqR3ZJajlfc3BXejJ3",
-       "took": 1,
-       "timed_out": false,
-       "_shards": {
-           "total": 5,
-           "successful": 5,
-           "failed": 0
-       },
-       "hits": {
-           "total": 3,
-           "max_score": null,
-           "hits": [
-               {
-                   "_index": "my_index",
-                   "_type": "my_type",
-                   "_id": "1",
-                   "_score": null,
-                   "_source": {
-                       "title": "2019-01-02"
-                   },
-                   "sort": [
-                       0
-                   ]
-               }
-           ]
-       }
+   	"_scroll_id": "DnF1ZXJ5VGhlbkZldGNoBQAAAAAAADpAFjRvbnNUWVZaVGpHdklqOV9zcFd6MncAAAAAAAA6QRY0b25zVFlWWlRqR3ZJajlfc3BXejJ3AAAAAAAAOkIWNG9uc1RZVlpUakd2SWo5X3NwV3oydwAAAAAAADpDFjRvbnNUWVZaVGpHdklqOV9zcFd6MncAAAAAAAA6RBY0b25zVFlWWlRqR3ZJajlfc3BXejJ3",
+   	"took": 1,
+   	"timed_out": false,
+   	"_shards": {
+   		"total": 5,
+   		"successful": 5,
+   		"failed": 0
+   	},
+   	"hits": {
+   		"total": 3,
+   		"max_score": null,
+   		"hits": [{
+   			"_index": "my_index",
+   			"_type": "my_type",
+   			"_id": "1",
+   			"_score": null,
+   			"_source": {
+   				"title": "2019-01-02"
+   			},
+   			"sort": [
+   				0
+   			]
+   		}]
+   	}
    }
    ```
-   
+
 9. 采用 bulk api 将 scoll 查出来的一批数据，批量写入新索引
 
    ```json
@@ -1068,7 +1057,7 @@ IK 原生最重要的两个配置文件
 <properties>
 	<comment>IK Analyzer 扩展配置</comment>
 	<!--用户可以在这里配置自己的扩展字典 -->
-	<entry key="ext_dict"></entry>  <!-- 创建好后讲创建的文件放入标签体内部 -->
+	<entry key="ext_dict"></entry>  <!-- 创建好后将创建的文件放入标签体内部 -->
 	 <!--用户可以在这里配置自己的扩展停止词字典-->
 	<entry key="ext_stopwords"></entry>
 	<!--用户可以在这里配置远程扩展字典 -->
@@ -1114,7 +1103,9 @@ es 不停机，直接我们在外部某个地方添加新的词语，es中立即
 
    Dictionary 类，609行：`this.loadMySQLStopwordDict();` 加载 mysql 停用词
 
-   config 下 创建 jdbc-reload.properties。mysql 的配置文件
+   config 下 创建 jdbc-reload.properties。
+
+   mysql 的配置文件
 
    ```properties
    jdbc.url=jdbc:mysql://localhost:3306/es?serverTimezone=GMT
@@ -1129,9 +1120,7 @@ es 不停机，直接我们在外部某个地方添加新的词语，es中立即
 
 3. mvn package 打包代码：`target\releases\elasticsearch-analysis-ik-7.3.0.zip`，将打成的 jar 包替换原先的 ik 分词的 jar 包
 
-4. 解压缩 ik 压缩包
-
-   将 mysql 驱动 jar 包，放入 es 的 lib 目录下
+4. 解压缩 ik 压缩包，将 mysql 驱动 jar 包，放入 es 的 lib 目录下
 
 5. 修改 jdbc 相关配置，即将上述的 jdbc-reload.properties 放入到 ik分词器插件的 config 目录中
 
