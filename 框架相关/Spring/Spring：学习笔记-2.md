@@ -358,7 +358,7 @@ public class AccountDaoImpl implements IAccountDao {
 
 * 作用：把资源让 spring 来管理。相当于在 xml 中配置一个 bean。
 
-* 属性：value：指定 bean 的 id。如果不指定 value 属性，默认 bean 的 id 是当前类的类名。首字母小写。
+* 属性：value 指定 bean 的 id。如果不指定 value 属性，默认 bean 的 id 是当前类的类名。首字母小写。
 
 **@Controller @Service @Repository**
 
@@ -390,7 +390,7 @@ public class AccountDaoImpl implements IAccountDao {
 ##### @Qualifier
 
 * 作用：在自动按照类型注入的基础之上，**再按照 Bean 的 id 注入**。它在给字段注入时不能独立使用，**必须和 @Autowire 一起使用**；但是给方法参数注入时，可以独立使用。
-* 属性：value：指定 bean 的 id。
+* 属性：value 指定 bean 的 id。
 
 > 但是给方法参数注入时，可以独立使用，实例：
 >
@@ -405,7 +405,7 @@ public class AccountDaoImpl implements IAccountDao {
 **@Resource**
 
 * 作用：直接按照 Bean 的 id 注入。它也只能注入其他 bean 类型。
-* 属性：name：指定 bean 的 id。
+* 属性：name 指定 bean 的 id。
 
 > 以上三个注入@AutoWrite，@Qualifier，@Resource都只能注入其他bean类型的数据，而基本类型和String类型无法使用上述注解实现。
 >
@@ -522,7 +522,7 @@ Spring 管理 Bean 方式的比较：
 
 作用：用于指定当前类是一个 spring 配置类， 当创建容器时会从该类上加载注解。 获取容器时需要使用 `AnnotationApplicationContext` (有 @Configuration 注解的类.class)。
 
-属性：value：用于指定配置类的字节码  
+属性：value 用于指定配置类的字节码  
 
 示例代码：  
 
@@ -557,7 +557,7 @@ public class SpringConfiguration {
 
 作用：**该注解只能写在方法上**，表明使用此方法创建一个对象，并且放入 spring 容器。
 
-属性：name：给当前@Bean 注解方法创建的对象指定一个名称(即 bean 的 id）。
+属性：name 给当前@Bean 注解方法创建的对象指定一个名称(即 bean 的 id）。
 
 示例代码：  
 
@@ -565,7 +565,7 @@ public class SpringConfiguration {
 // 连接数据库的配置类
 public class JdbcConfig {
 
-    //  创建一个数据源，并存入 spring 容器中
+    // 创建一个数据源，并存入 spring 容器中
     @Bean(name="dataSource")
     public DataSource createDataSource() {
         try {
@@ -596,7 +596,7 @@ public class JdbcConfig {
 
 作用：用于加载 `.properties` 文件中的配置。例如在配置数据源时，可以把连接数据库的信息写到 properties 配置文件中，就可以使用此注解指定 properties 配置文件的位置。
 
-属性：`value[]`：用于指定 properties 文件位置。如果是在类路径下，需要写上 `classpath:`
+属性：`value[]` 用于指定 properties 文件位置。如果是在类路径下，需要写上 `classpath:`
 
 示例代码：
 
@@ -613,6 +613,7 @@ public class JdbcConfig {
     private String username;
     @Value("${jdbc.password}")
     private String password;
+    
     // 创建一个数据源，并存入 spring 容器中
     @Bean(name="dataSource")
     public DataSource createDataSource() {
@@ -645,7 +646,7 @@ jdbc.password=root
 
 作用：用于导入其他配置类，在引入其他配置类时，可以不用再写 `@Configuration` 注解。 当然，写上也没问题。
 
-属性：`value[]`：用于指定其他配置类的字节码。
+属性：`value[]` 用于指定其他配置类的字节码。
 
 示例代码：
 
@@ -680,7 +681,7 @@ ApplicationContext ac = new AnnotationConfigApplicationContext(SpringConfigurati
 
   ```java
   ApplicationContext ac = new ClassPathXmlApplicationContext("bean.xml");
-  IAccountService as = ac.getBean("accountService",IAccountService.class);
+  IAccountService as = ac.getBean("accountService", IAccountService.class);
   ```
 
 * 这两行代码的作用是获取容器，如果不写的话，直接会提示空指针异常。所以又不能轻易删掉。
@@ -703,7 +704,7 @@ ApplicationContext ac = new AnnotationConfigApplicationContext(SpringConfigurati
 </dependency>
 ```
 
-**第二步：使 用@RunWith 注解替换原有运行器**
+**第二步：使用@RunWith 注解替换原有运行器**
 
 ```java
 // 测试类

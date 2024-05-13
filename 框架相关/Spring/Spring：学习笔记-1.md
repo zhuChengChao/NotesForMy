@@ -288,6 +288,7 @@ public class AccountServiceImpl implements IAccountService {
     
     //此处的依赖关系有待解决
     private IAccountDao accountDao = new AccountDaoImpl();
+    
     @Override
     public void saveAccount() {
         accountDao.saveAccount();
@@ -658,7 +659,7 @@ public class AccountServiceImpl4 implements IAccountService {
 
 **注入集合属性**：顾名思义，就是给类中的集合成员传值，它用的也是set方法注入的方式，只不过变量的数据类型都是集合。
 
-这里介绍注入数组， List,Set,Map,Properties。具体代码如下：  
+这里介绍注入数组：List,Set,Map,Properties。具体代码如下：  
 
 ```java
 public class AccountServiceImpl implements IAccountService {

@@ -33,6 +33,7 @@ AOP： 全称是 Aspect Oriented Programming，即： 面向切面编程。
 public class AccountServiceImpl implements IAccountService {
     
     private IAccountDao accountDao;
+    
     public void setAccountDao(IAccountDao accountDao) {
         this.accountDao = accountDao;
     }
@@ -927,7 +928,7 @@ public class TransactionManager {
 
 * 作用：把当前方法看成是前置通知。
 
-* 属性：value：用于指定切入点表达式，还可以指定切入点表达式的引用。  
+* 属性：value 用于指定切入点表达式，还可以指定切入点表达式的引用。  
 
 ```java
 //开启事务
@@ -944,7 +945,7 @@ public void beginTransaction() {
 `@AfterReturning`
 
 * 作用：把当前方法看成是后置通知。
-* 属性：value：用于指定切入点表达式，还可以指定切入点表达式的引用  
+* 属性：value 用于指定切入点表达式，还可以指定切入点表达式的引用  
 
 ```java
 //提交事务
@@ -978,7 +979,7 @@ public void rollback() {
 `@After`
 
 * 作用：把当前方法看成是最终通知。
-* 属性：value：用于指定切入点表达式，还可以指定切入点表达式的引用  
+* 属性：value 用于指定切入点表达式，还可以指定切入点表达式的引用  
 
 ```java
 //释放资源
