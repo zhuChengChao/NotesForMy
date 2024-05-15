@@ -480,7 +480,7 @@ public UserDaoImpl(String name){
 ```java
 //工厂类
 public class UserDaoFactoryBean {
-    //非静态工厂方法
+    //静态工厂方法
     public static UserDao getUserDao(String name) {
         //可以在此编写一些其他逻辑代码
         return new UserDaoImpl();
@@ -1285,7 +1285,7 @@ BeanPostProcessor的after方法...
 >
 > * 对方法进行增强主要就是代理设计模式和包装设计模式；
 > * 由于Bean方法不确定，所以使用动态代理在运行期间执行增强操作；
-> * 在Bean实例创建完毕后，进入到单例池之前，使用Proxy代替真是的目标Bean
+> * 在Bean实例创建完毕后，进入到单例池之前，使用Proxy代替真实的目标Bean
 >
 > 编写BeanPostProcessor，增强逻辑编写在 after方法中
 >
