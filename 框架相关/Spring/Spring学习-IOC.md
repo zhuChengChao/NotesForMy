@@ -1883,7 +1883,6 @@ public class ContextNamespaceHandler extends NamespaceHandlerSupport {
         this.registerBeanDefinitionParser("mbean-server", new MBeanServerBeanDefinitionParser());
     }
 }
-高级软件人才培训专家
 ```
 
 通过上述分析，我们清楚的了解了**外部命名空间标签的执行流程**，如下：
@@ -2288,7 +2287,7 @@ public UserDao userDao02() {
 }
 ```
 
-扩展：@Profile 注解的作用同于xml配置时学习profile属性，是进行环境切换使用的，`<beans profile="test">`
+扩展：@Profile 注解的作用同在xml配置时学习profile属性，是进行环境切换使用的，`<beans profile="test">`
 
 注解 @Profile 标注在类或方法上，标注当前产生的Bean从属于哪个环境，只有激活了当前环境，被标注的Bean才能被注册到Spring容器里，不指定环境的Bean，任何环境下都能注册到Spring容器里
 
@@ -2316,7 +2315,7 @@ public class UserDaoImpl2 implements UserDao {}
 
 * 配置类配置组件扫描：
 
-* ```java
+  ```java
   @Configuration
   @ComponentScan("com.itheima")
   public class AppConfig {

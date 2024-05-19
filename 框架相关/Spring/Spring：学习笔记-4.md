@@ -310,7 +310,7 @@ public class JdbcTemplateDemo3 {
 }
 ```
 
-* 使用 ResultSetExtractor 的方式:不常用的方式
+* 使用 ResultSetExtractor 的方式：不常用的方式
 
 ```java
 public class JdbcTemplateDemo3 {
@@ -1089,7 +1089,7 @@ public class AccountDaoImpl implements IAccountDao {
 
 ```java
 @Service("accountService")
-@Transactional(readOnly=true,propagation=Propagation.SUPPORTS)
+@Transactional(readOnly=true, propagation=Propagation.SUPPORTS)
 public class AccountServiceImpl implements IAccountService {
     
     @Autowired
