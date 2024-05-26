@@ -193,7 +193,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 ### 请求映射路径的配置
 
-配置映射路径，映射器处理器才能找到Controller的方法资源，目前主流映射路径配置方式就是@RequestMapping
+配置映射路径，映射器处理器才能找到Controller的方	法资源，目前主流映射路径配置方式就是@RequestMapping
 
 ![请求映射路径的配置](image/请求映射路径的配置.jpg)
 
@@ -329,7 +329,7 @@ public String show(String[] hobbies) {
 
 ```java
 @GetMapping("/show")
-public String show(@RequestParam List < String > hobbies) {
+public String show(@RequestParam List<String> hobbies) {
     for(String hobby: hobbies) {
         System.out.println(hobby);
     }
@@ -343,7 +343,7 @@ public String show(@RequestParam List < String > hobbies) {
 // username=haohao&age=18
 
 @PostMapping("/show")
-public String show(@RequestParam Map < String, Object > params) {
+public String show(@RequestParam Map<String, Object> params) {
     params.forEach((key, value) - > {
         System.out.println(key + "==" + value);
     });
@@ -456,7 +456,7 @@ public String show(@RequestBody Map map) {
 }
 ```
 
-接收Restful风格数据
+**接收Restful风格数据**
 
 什么是Rest风格？
 
@@ -587,7 +587,7 @@ public String headers(@RequestHeader("Accept-Encoding") String acceptEncoding) {
 
 ```java
 @GetMapping("/headersMap")
-public String headersMap(@RequestHeader Map < String, String > map) {
+public String headersMap(@RequestHeader Map<String, String> map) {
     map.forEach((k, v) - > {
         System.out.println(k + ":" + v);
     });
@@ -671,7 +671,7 @@ public String javawebObject(HttpServletRequest request, HttpServletResponse resp
 
 url-pattern配置为 / 的Servlet我们称其为缺省的Servlet，作用是当其他Servlet都匹配不成功时，就找缺省的Servlet，静态资源由于没有匹配成功的Servlet，所以会找缺省的DefaultServlet，该DefaultServlet具备二次去匹配静态资源的功能。但是我们配置DispatcherServlet后就将其覆盖掉了，而DispatcherServlet会将请求的静态资源的名称当成Controller的映射路径去匹配，即静态资源访问不成功了！
 
-静态资源请求的三种解决方案：
+**静态资源请求的三种解决方案：**
 
 第一种方案，可以再次激活Tomcat的DefaultServlet，Servlet的url-pattern的匹配优先级是：精确匹配>目录匹配>扩展名匹配>缺省匹配，所以可以指定某个目录下或某个扩展名的资源使用DefaultServlet进行解析：
 
@@ -696,7 +696,7 @@ url-pattern配置为 / 的Servlet我们称其为缺省的Servlet，作用是当�
 <mvc:resources mapping="/html/*" location="/html/"/>
 ```
 
-第三种方式，在spring-mvc.xml中去配置< mvc:default-servlet-handler >，该方式是注册了一个DefaultServletHttpRequestHandler 处理器，静态资源的访问都由该处理器去处理，这也是开发中使用最多的
+第三种方式，在spring-mvc.xml中去配置`<mvc:default-servlet-handler>`，该方式是注册了一个DefaultServletHttpRequestHandler 处理器，静态资源的访问都由该处理器去处理，这也是开发中使用最多的
 
 `<mvc:default-servlet-handler/>`
 
@@ -716,6 +716,8 @@ public BeanDefinition parse(Element element, ParserContext context) {
     context.getRegistry().registerBeanDefinition(beanName, handlerMappingDef);
 }
 ```
+
+![SimpleUrlHandlerMapping类关系](image/SimpleUrlHandlerMapping类关系.jpg)
 
 又结合组件浅析知识点，一旦SpringMVC容器中存在 HandlerMapping 类型的组件时，前端控制器DispatcherServlet在进行初始化时，就会从容器中获得HandlerMapping ，不在加载 dispatcherServlet.properties中默认处理器映射器策略，那也就意味着RequestMappingHandlerMapping不会被加载到了。
 
@@ -798,7 +800,7 @@ public String response2() throws IOException {
 
 其实此处的回写数据，跟上面回写数据给客户端的语法方式一样，只不过有如下一些区别：
 
-* 同步方式回写数据，是将数据响应给浏览器进行页面展示的，而异步方式回写数据一般是回写给Ajax引擎的，即谁访问服务器端，服务器端就将数据响应给谁
+* 同步方式回写数据，是**将数据响应给浏览器**进行页面展示的，而异步方式回写数据一般是**回写给Ajax引擎**的，即谁访问服务器端，服务器端就将数据响应给谁
 * 同步方式回写的数据，一般就是一些无特定格式的字符串，而异步方式回写的数据大多是Json格式字符串
 
 回写普通数据使用@ResponseBody标注方法，直接返回字符串即可，此处不在说明；
@@ -987,7 +989,7 @@ public class HandlerExecutionChain {
     //映射的Controller的方法
     private final Object handler;
     //当前Handler匹配的拦截器集合
-    private final List < HandlerInterceptor > interceptorList;
+    private final List <HandlerInterceptor> interceptorList;
     // ... 省略其他代码 ...
 }
 ```
@@ -1127,10 +1129,12 @@ public @interface EnableWebMvc {}
 
 @Configuration(proxyBeanMethods = false)
 public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
+    
     private final WebMvcConfigurerComposite configurers = new WebMvcConfigurerComposite();
+    
     //从容器中注入WebMvcConfigurer类型的Bean
     @Autowired(required = false)
-    public void setConfigurers(List < WebMvcConfigurer > configurers) {
+    public void setConfigurers(List<WebMvcConfigurer> configurers) {
         if(!CollectionUtils.isEmpty(configurers)) {
             this.configurers.addWebMvcConfigurers(configurers);
         }
@@ -1223,9 +1227,7 @@ DispatcherServlet在进行SpringMVC配置文件加载时，使用的是以下方
 </servlet-mapping>
 ```
 
-现在是使用SpringMVCConfig核心配置类提替代的spring-mvc.xml，怎么加载呢？参照Spring的ContextLoaderListener加载核心配置类的做法，定义了一个AnnotationConfigWebApplicationContext，通过
-
-代码注册核心配置类
+现在是使用SpringMVCConfig核心配置类提替代的spring-mvc.xml，怎么加载呢？参照Spring的ContextLoaderListener加载核心配置类的做法，定义了一个AnnotationConfigWebApplicationContext，通过代码注册核心配置类
 
 ```java
 public class MyAnnotationConfigWebApplicationContext extends
@@ -1238,7 +1240,7 @@ AnnotationConfigWebApplicationContext {
 ```
 
 ```xml
-<!--指定springMVC的applicationContext全限定名 -->
+<!--指定springMVC的applicationContext全限定名 加载SpringMVC的核心配置类-->
 <init-param>
     <param-name>contextClass</param-name>
     <param-value>com.itheima.config.MyAnnotationConfigWebApplicationContext</param-value>
@@ -1250,6 +1252,15 @@ AnnotationConfigWebApplicationContext {
 目前，几乎消除了配置文件，但是web工程的入口还是使用的web.xml进行配置的，如下
 
 ```xml
+<!--配置ContextLoaderListener-->
+<context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:applictionContext.xml</param-value>
+</context-param>
+<listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+</listener>
+
 <!--配置springMVC前端控制器-->
 <servlet>
     <servlet-name>DispatcherServlet</servlet-name>
@@ -1272,27 +1283,32 @@ Servlet3.0环境中，web容器提供了javax.servlet.ServletContainerInitialize
 
 基于这个特性，Spring就定义了一个SpringServletContainerInitializer实现了ServletContainerInitializer接口; 
 
-而SpringServletContainerInitializer会查找实现了WebApplicationInitializer的类，Spring又提供了一个WebApplicationInitializer的基础实现类AbstractAnnotationConfigDispatcherServletInitializer，当我们编写类继承AbstractAnnotationConfigDispatcherServletInitializer时，容器就会自动发现我们自己的类，在该类中我们就可以配置Spring和SpringMVC的入口了。
+而SpringServletContainerInitializer会查找实现了WebApplicationInitializer的类（`@HandlesTypes({WebApplicationInitializer.class})`），Spring又提供了一个WebApplicationInitializer的基础实现类AbstractAnnotationConfigDispatcherServletInitializer，当我们编写类继承AbstractAnnotationConfigDispatcherServletInitializer时，容器就会自动发现我们自己的类，在该类中我们就可以配置Spring和SpringMVC的入口了。
 
 按照下面的配置就可以完全省略web.xml
 
 ```java
 public class MyAnnotationConfigDispatcherServletInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
+    
     //返回的带有@Configuration注解的类用来配置ContextLoaderListener
-    protected Class < ? > [] getRootConfigClasses() {
+    protected Class<?> [] getRootConfigClasses() {
         System.out.println("加载核心配置类创建ContextLoaderListener");
         return new Class[] {
+            // Spring容器的核心配置类
             ApplicationContextConfig.class
         };
     }
+    
     //返回的带有@Configuration注解的类用来配置DispatcherServlet
-    protected Class < ? > [] getServletConfigClasses() {
+    protected Class<?> [] getServletConfigClasses() {
         System.out.println("加载核心配置类创建DispatcherServlet");
         return new Class[] {
+			// SpringMVC容器的核心配置类
             SpringMVCConfig.class
         };
     }
-    //将一个或多个路径映射到DispatcherServlet上
+    
+    //将一个或多个路径映射到DispatcherServlet上，提供前端控制器的映射路径
     protected String[] getServletMappings() {
         return new String[] {
             "/"
@@ -1310,16 +1326,17 @@ public class MyAnnotationConfigDispatcherServletInitializer extends AbstractAnno
 DispatcherServlet 的初始化主要做了两件事：
 
 * 获得了一个 SpringMVC 的 ApplicationContext 容器；
-* 注册了 SpringMVC的九大组件
+* 注册了 SpringMVC 的九大组件
 
 ![前端控制器初始化-1](image/前端控制器初始化-1.jpg)
 
-SpringMVC 的ApplicationContext容器创建时机，Servlet 规范的 init(ServletConfig config) 方法经过子类重写，最终会调用 FrameworkServlet 抽象类的initWebApplicationContext() 方法，该方法中最终获得 一个根Spring容器（Spring产生的），一个子Spring容器（SpringMVC产生的）
+SpringMVC的ApplicationContext容器创建时机，Servlet 规范的 `init(ServletConfig config)` 方法经过子类重写，最终会调用 FrameworkServlet 抽象类的 `initWebApplicationContext()` 方法，该方法中最终获得一个根Spring容器（Spring产生的），一个子Spring容器（SpringMVC产生的）
 
 HttpServletBean 的初始化方法
 
 ```java
 public final void init() throws ServletException {
+    // .....
     this.initServletBean();
 }
 ```
@@ -1328,29 +1345,29 @@ FrameworkServlet的initServletBean方法
 
 ```java
 protected final void initServletBean() throws ServletException {
-    //初始化ApplicationContext
+    // 初始化ApplicationContext
     this.webApplicationContext = this.initWebApplicationContext(); 
-    //模板设计模式，供子类覆盖实现，但是子类DispatcherServlet没做使用
+    // 模板设计模式，供子类覆盖实现，但是子类DispatcherServlet没做使用
     this.initFrameworkServlet(); 
 }
 ```
 
-在initWebApplicationContext方法中体现的父子容器的逻辑关系
+**在initWebApplicationContext方法中体现的父子容器的逻辑关系**
 
 ```java
-//初始化ApplicationContext是一个及其关键的代码
+// 初始化ApplicationContext是一个及其关键的代码
 protected WebApplicationContext initWebApplicationContext() {
-    //获得根容器，其实就是通过ContextLoaderListener创建的ApplicationContext
-    //如果配置了ContextLoaderListener则获得根容器，没配置获得的是null
+    // 获得根容器，其实就是通过ContextLoaderListener创建的ApplicationContext
+    // 如果配置了ContextLoaderListener则获得根容器，没配置获得的是null
     WebApplicationContext rootContext = WebApplicationContextUtils.getWebApplicationContext(this.getServletContext());
-    //定义SpringMVC产生的ApplicationContext子容器
+    // 定义SpringMVC产生的ApplicationContext子容器
     WebApplicationContext wac = null;
     if(wac == null) {
-        //==>创建SpringMVC的子容器，创建同时将Spring的创建的rootContext传递了过去
+        // ==>创建SpringMVC的子容器，创建同时将Spring的创建的rootContext传递了过去
         wac = this.createWebApplicationContext(rootContext);
     }
-    //将SpringMVC产生的ApplicationContext子容器存储到ServletContext域中
-    //key名是：org.springframework.web.servlet.FrameworkServlet.CONTEXT.DispatcherServlet
+    // 将SpringMVC产生的ApplicationContext子容器存储到ServletContext域中
+    // key名是：org.springframework.web.servlet.FrameworkServlet.CONTEXT.DispatcherServlet
     if(this.publishContext) {
         String attrName = this.getServletContextAttributeName();
         this.getServletContext().setAttribute(attrName, wac);
@@ -1362,17 +1379,17 @@ protected WebApplicationContext initWebApplicationContext() {
 
 ```java
 protected WebApplicationContext createWebApplicationContext(@Nullable ApplicationContext parent) {
-    //实例化子容器ApplicationContext
+    // 实例化子容器ApplicationContext
     ConfigurableWebApplicationContext wac = (ConfigurableWebApplicationContext) BeanUtils.instantiateClass(contextClass);
-    //设置传递过来的ContextLoaderListener的rootContext为父容器
+    // **设置传递过来的ContextLoaderListener的rootContext为父容器**
     wac.setParent(parent);
-    //获得web.xml配置的classpath:spring-mvc.xml
+    // 获得web.xml配置的classpath:spring-mvc.xml
     String configLocation = this.getContextConfigLocation();
     if(configLocation != null) {
-        //为子容器设置配置加载路径
+        // 为子容器设置配置加载路径
         wac.setConfigLocation(configLocation);
     }
-    //初始化子容器(就是加载spring-mvc.xml配置的Bean)
+    // 初始化子容器(就是加载spring-mvc.xml配置的Bean)
     this.configureAndRefreshWebApplicationContext(wac);
     return wac;
 }
@@ -1384,47 +1401,166 @@ protected WebApplicationContext createWebApplicationContext(@Nullable Applicatio
 
 父容器和子容器概念和关系：
 
-* 父容器：Spring 通过ContextLoaderListener为入口产生的applicationContext容器，内部主要维护的是applicationContext.xml（或相应配置类）配置的Bean信息；
-* 子容器：SpringMVC通过DispatcherServlet的init() 方法产生的applicationContext容器，内部主要维护的是spring-mvc.xml（或相应配置类）配置的Bean信息，且内部还通过parent属性维护这父容器的引用。
-* Bean的检索顺序：根据上面子父容器的概念，可以知道Controller存在与子容器中，而Controller中要注入Service时，会先从子容器本身去匹配，匹配不成功时在去父容器中去匹配，于是最终从父容器中匹配到的UserService，这样子父容器就可以进行联通了。但是父容器只能从自己容器中进行匹配，不能从子容器中进行匹配。
+* 父容器：Spring通过ContextLoaderListener为入口产生的**applicationContext容器**，内部主要维护的是applicationContext.xml（或相应配置类）配置的Bean信息；
+* 子容器：SpringMVC通过DispatcherServlet的`init()`方法产生的applicationContext容器，内部主要维护的是spring-mvc.xml（或相应配置类）配置的Bean信息，且内部还通过parent属性维护这父容器的引用。
+* **Bean的检索顺序**：根据上面子父容器的概念，可以知道Controller存在与子容器中，而Controller中要注入Service时，会先从子容器本身去匹配，匹配不成功时再去父容器中去匹配，于是最终从父容器中匹配到的UserService，这样子父容器就可以进行联通了。但是父容器只能从自己容器中进行匹配，不能从子容器中进行匹配。
+
+接上面初始化子容器源码`this.configureAndRefreshWebApplicationContext(wac);`
+
+```java
+// 类：org.springframework.web.servlet.FrameworkServlet
+protected void configureAndRefreshWebApplicationContext(ConfigurableWebApplicationContext wac) {
+	// ...
+    postProcessWebApplicationContext(wac);
+	applyInitializers(wac);
+    // 经典的refresh方法
+    wac.refresh();
+}
+
+// 类：org.springframework.context.support.AbstractApplicationContext
+// 其中wac.refresh(); 实际位置：org.springframework.context.support.AbstractApplicationContext#refresh
+// 方法末尾有如下代码：
+try {
+    // Allows post-processing of the bean factory in context subclasses.
+    postProcessBeanFactory(beanFactory);
+
+    StartupStep beanPostProcess = this.applicationStartup.start("spring.context.beans.post-process");
+    // Invoke factory processors registered as beans in the context.
+    invokeBeanFactoryPostProcessors(beanFactory);
+
+    // Register bean processors that intercept bean creation.
+    registerBeanPostProcessors(beanFactory);
+    beanPostProcess.end();
+
+    // Initialize message source for this context.
+    initMessageSource();
+
+    // Initialize event multicaster for this context.
+    initApplicationEventMulticaster();
+
+    // Initialize other special beans in specific context subclasses.
+    onRefresh();
+
+    // Check for listener beans and register them.
+    registerListeners();
+
+    // Instantiate all remaining (non-lazy-init) singletons.
+    finishBeanFactoryInitialization(beanFactory);
+
+    // Last step: publish corresponding event. 结束refresh
+    finishRefresh();
+}
+
+protected void finishRefresh() {
+    // Clear context-level resource caches (such as ASM metadata from scanning).
+    clearResourceCaches();
+
+    // Initialize lifecycle processor for this context.
+    initLifecycleProcessor();
+
+    // Propagate refresh to lifecycle processor first.
+    getLifecycleProcessor().onRefresh();
+
+    // Publish the final event.  发布事件
+    publishEvent(new ContextRefreshedEvent(this));
+
+    // Participate in LiveBeansView MBean, if active.
+    if (!NativeDetector.inNativeImage()) {
+        LiveBeansView.registerApplicationContext(this);
+    }
+}
+
+// 回到类：org.springframework.web.servlet.FrameworkServlet
+// 发布事件导致对应的监听器执行（org.springframework.web.servlet.FrameworkServlet.ContextRefreshListener）
+private class ContextRefreshListener implements ApplicationListener<ContextRefreshedEvent> {
+
+	@Override
+	public void onApplicationEvent(ContextRefreshedEvent event) {
+        // 容器的监听机制导致执行该方法
+		FrameworkServlet.this.onApplicationEvent(event);
+	}
+}
+
+public void onApplicationEvent(ContextRefreshedEvent event) {
+    this.refreshEventReceived = true;
+    synchronized (this.onRefreshMonitor) {
+        onRefresh(event.getApplicationContext());
+    }
+}
+
+protected void onRefresh(ApplicationContext context) {
+    // For subclasses: do nothing by default.
+    // 子类的实现了改方法
+}
+
+// 类：org.springframework.web.servlet.DispatcherServlet#onRefresh
+@Override
+protected void onRefresh(ApplicationContext context) {
+    initStrategies(context);
+}
+
+// 初始化策略
+protected void initStrategies(ApplicationContext context) {
+    initMultipartResolver(context);
+    initLocaleResolver(context);
+    initThemeResolver(context);
+    initHandlerMappings(context);
+    initHandlerAdapters(context);
+    initHandlerExceptionResolvers(context);
+    initRequestToViewNameTranslator(context);
+    initViewResolvers(context);
+    initFlashMapManager(context);
+}
+```
 
 注册 SpringMVC的 九大组件，在初始化容器initWebApplicationContext方法中执行了onRefresh方法，进而执行了初始化策略initStrategies方法，注册了九个解析器组件
 
 ```java
 //DispatcherServlet初始化SpringMVC九大组件
 protected void initStrategies(ApplicationContext context) {
-    this.initMultipartResolver(context); //1、初始化文件上传解析器
-    this.initLocaleResolver(context); //2、初始化国际化解析器
-    this.initThemeResolver(context); //3、初始化模板解析器
-    this.initHandlerMappings(context); //4、初始化处理器映射器
-    this.initHandlerAdapters(context); //5、初始化处理器适配器
-    this.initHandlerExceptionResolvers(context); //6、初始化处理器异常解析器
-    this.initRequestToViewNameTranslator(context); //7、初始化请求视图转换器
-    this.initViewResolvers(context); //8、初始化视图解析器
-    this.initFlashMapManager(context); //9、初始化lashMapManager策略组件
+    // 1、初始化文件上传解析器
+    this.initMultipartResolver(context);
+    // 2、初始化国际化解析器
+    this.initLocaleResolver(context);
+    // 3、初始化模板解析器
+    this.initThemeResolver(context);
+    // 4、初始化处理器映射器
+    this.initHandlerMappings(context);
+    // 5、初始化处理器适配器
+    this.initHandlerAdapters(context);
+    // 6、初始化处理器异常解析器
+    this.initHandlerExceptionResolvers(context);
+    // 7、初始化请求视图转换器
+    this.initRequestToViewNameTranslator(context); 
+    // 8、初始化视图解析器
+    this.initViewResolvers(context);
+    // 9、初始化lashMapManager策略组件
+    this.initFlashMapManager(context);
 }
 ```
 
-以 this.initHandlerMappings(context) 为例，进一步看一下初始化处理器映射器的细节：
+以 `this.initHandlerMappings(context)` 为例，进一步看一下初始化处理器映射器的细节：
 
 ```java
-//定义List容器存储HandlerMapping
-private List < HandlerMapping > handlerMappings;
-//初始化HandlerMapping的方法
+// 定义List容器存储HandlerMapping
+private List <HandlerMapping> handlerMappings;
+
+// 初始化HandlerMapping的方法
 private void initHandlerMappings(ApplicationContext context) {
-    this.handlerMappings = null; //初始化集合为null
-    //detectAllHandlerMappings默认为true，代表是否从所有容器中(父子容器)检测HandlerMapping
+	// 初始化集合为null
+    this.handlerMappings = null; 
+    // detectAllHandlerMappings默认为true，代表是否从所有容器中(父子容器)检测HandlerMapping
     if(this.detectAllHandlerMappings) {
-        //从Spring容器中去匹配HandlerMapping
-        Map < String, HandlerMapping > matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);
-        //如果从容器中获取的HandlerMapping不为null就加入到事先定义好的handlerMappings容器中
+        // 从Spring容器中去匹配HandlerMapping
+        Map <String, HandlerMapping> matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);
+        // 如果从容器中获取的HandlerMapping不为null就加入到事先定义好的handlerMappings容器中
         if(!matchingBeans.isEmpty()) {
             this.handlerMappings = new ArrayList(matchingBeans.values());
             AnnotationAwareOrderComparator.sort(this.handlerMappings);
         }
-        //如果从容器中没有获得HandlerMapping，意味着handlerMappings集合是空的
+        // 如果从容器中没有获得HandlerMapping，意味着handlerMappings集合是空的
         if(this.handlerMappings == null) {
-            //加载默认的HandlerMapping，就是加载DispatcherServlet.properties文件中的键值对
+            // 加载默认的HandlerMapping，就是加载DispatcherServlet.properties文件中的键值对
             this.handlerMappings = this.getDefaultStrategies(context, HandlerMapping.class);
         }
     }
@@ -1433,5 +1569,485 @@ private void initHandlerMappings(ApplicationContext context) {
 
 ![前端控制器初始化-3](image/前端控制器初始化-3.jpg)
 
+> 为什么执行了 `BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);` 后就获取到了HandlerMapping？
+>
+> 因为配置 `<mvc:annotation-driven>` 或者是注解`@EnableWebMvc`的生效，具体可以看上面的笔记
+
 ### 前端控制器执行主流程
 
+上面讲解了一下，当服务器启动时，DispatcherServlet 会执行初始化操作，接下来，每次访问都会执行service方法，我们先宏观的看一下执行流程，在去研究源码和组件执行细节
+
+![SpringMVC关键组件浅析-2](image/SpringMVC关键组件浅析-2.jpg)
+
+FrameworkServlet 复写了`service(HttpServletRequest request, HttpServletResponse response)` 、`doGet(HttpServletRequest request, HttpServletResponse response)`、`doPost(HttpServletRequest request, HttpServletResponse response)` 等方法，这些方法都会调用**processRequest**方法
+
+```java
+protected final void processRequest(HttpServletRequest request, HttpServletResponse response){
+    // ...
+    this.doService(request, response);
+    // ...
+}
+```
+
+进一步调用了doService方法，该方法内部又调用了doDispatch方法，而SpringMVC 主流程最核心的方法就是 doDispatch 方法
+
+```java
+// 类#方法：org.springframework.web.servlet.FrameworkServlet#doService
+protected abstract void doService(HttpServletRequest request, HttpServletResponse response)
+			throws Exception;
+
+// 类#方法：org.springframework.web.servlet.DispatcherServlet#doService
+protected void doService(HttpServletRequest request, HttpServletResponse response) {
+    // ...
+	this.doDispatch(request, response);
+    // ...
+}
+```
+
+doDispatch方法源码
+
+```java
+protected void doDispatch(HttpServletRequest request, HttpServletResponse response) {
+    HttpServletRequest processedRequest = request;
+    // 定义处理器执行链对象
+    HandlerExecutionChain mappedHandler = null;
+    // 定义模型视图对象
+    ModelAndView mv = null;
+    // 匹配处理器映射器HandlerMapping，返回处理器执行链对象
+    mappedHandler = this.getHandler(processedRequest);
+    // 匹配处理器适配器HandlerAdapter，返回处理器适配器对象
+    HandlerAdapter ha = this.getHandlerAdapter(mappedHandler.getHandler());
+    // 执行Interceptor的前置方法preHandle
+    mappedHandler.applyPreHandle(processedRequest, response);
+    // 处理器适配器执行控制器Handler，返回模型视图对象
+    mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
+    // 执行Interceptor的后置方法postHandle
+    mappedHandler.applyPostHandle(processedRequest, response, mv);
+    // 获取视图渲染视图
+    this.processDispatchResult(processedRequest, response, mappedHandler, mv, (Exception)dispatchException);
+}
+```
+
+具体分析：mappedHandler = this.getHandler(processedRequest);
+
+```java
+// getHandler:匹配处理器映射器HandlerMapping，返回处理器执行链对象
+@Nullable
+protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+    if (this.handlerMappings != null) {
+        // 其中 handlerMappings：private List<HandlerMapping> handlerMappings;
+        for (HandlerMapping mapping : this.handlerMappings) {
+            // 遍历不同的HandlerMapping，返回对应的HandlerExecutionChain
+            HandlerExecutionChain handler = mapping.getHandler(request);
+            if (handler != null) {
+                return handler;
+            }
+        }
+    }
+    return null;
+}
+
+// 进一步分析：HandlerExecutionChain handler = mapping.getHandler(request);
+// 其中：org.springframework.web.servlet.HandlerMapping#getHandler为接口
+// 取其中的一个实现类进行分析：org.springframework.web.servlet.handler.AbstractHandlerMapping#getHandler
+@Override
+@Nullable
+public final HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+    Object handler = getHandlerInternal(request);
+    // ...
+    // 获取HandlerExecutionChain
+    HandlerExecutionChain executionChain = getHandlerExecutionChain(handler, request);
+    // ... 
+
+    return executionChain;
+}
+
+// 继续分析：org.springframework.web.servlet.handler.AbstractHandlerMapping#getHandlerExecutionChain
+protected HandlerExecutionChain getHandlerExecutionChain(Object handler, HttpServletRequest request) {
+    HandlerExecutionChain chain = (handler instanceof HandlerExecutionChain ?
+                                   (HandlerExecutionChain) handler : new HandlerExecutionChain(handler));
+	
+    // 其中：List<HandlerInterceptor> adaptedInterceptors，在初始化时已经放入了拦截器
+    for (HandlerInterceptor interceptor : this.adaptedInterceptors) {
+        if (interceptor instanceof MappedInterceptor) {
+            MappedInterceptor mappedInterceptor = (MappedInterceptor) interceptor;
+            if (mappedInterceptor.matches(request)) {
+                // 当前请求路径匹配了拦截器，则把拦截器放入HandlerExecutionChain中
+                chain.addInterceptor(mappedInterceptor.getInterceptor());
+            }
+        }
+        else {
+            chain.addInterceptor(interceptor);
+        }
+    }
+    return chain;
+}
+```
+
+具体分析：`mv = ha.handle(processedRequest, response, mappedHandler.getHandler());`
+
+```java
+// 截取上方内容：
+// 匹配处理器适配器HandlerAdapter，返回处理器适配器对象
+HandlerAdapter ha = this.getHandlerAdapter(mappedHandler.getHandler());
+// 处理器适配器执行控制器Handler，返回模型视图对象
+mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
+// 可以看到处理器适配器（HandlerAdapter）只会指定handle方法（最终目标方法）
+
+// 接口：org.springframework.web.servlet.HandlerAdapter#handle没有实现，找到对应的子类：
+// org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter#handle
+@Override
+@Nullable
+public final ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler)
+		throws Exception {
+
+	return handleInternal(request, response, (HandlerMethod) handler);
+}
+
+@Nullable
+protected abstract ModelAndView handleInternal(HttpServletRequest request,
+		HttpServletResponse response, HandlerMethod handlerMethod) throws Exception;
+
+// 其中handleInternal对应的实现在：org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter#handleInternal
+@Override
+protected ModelAndView handleInternal(HttpServletRequest request,
+                                      HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
+
+    ModelAndView mav;
+    checkRequest(request);
+
+ 	// 关注：
+    mav = invokeHandlerMethod(request, response, handlerMethod);
+    
+    return mav;
+}
+
+@Nullable
+protected ModelAndView invokeHandlerMethod(HttpServletRequest request,
+                                           HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
+    // 关注：
+    ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
+    // ...
+	invocableMethod.invokeAndHandle(webRequest, mavContainer);
+    // ...
+}
+
+// 类#方法：org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod#invokeAndHandle
+public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer,
+			Object... providedArgs) throws Exception {
+    // ...
+    Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);
+    // ...
+}
+
+
+// 类#方法：org.springframework.web.method.support.InvocableHandlerMethod#invokeForRequest
+@Nullable
+public Object invokeForRequest(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer, Object... providedArgs) throws Exception {
+    // 获取方法的参数值
+    Object[] args = this.getMethodArgumentValues(request, mavContainer, providedArgs);
+    if (logger.isTraceEnabled()) {
+        logger.trace("Arguments: " + Arrays.toString(args));
+    }
+	// 真正执行的方法
+    return this.doInvoke(args);
+}
+
+// 类#方法：org.springframework.web.method.support.InvocableHandlerMethod#doInvoke
+@Nullable
+protected Object doInvoke(Object... args) throws Exception {
+    Method method = this.getBridgedMethod();
+    ReflectionUtils.makeAccessible(method);
+    // 反射指定方法
+    return method.invoke(getBean(), args);
+}
+```
+
+## 07. SpringMVC的组件原理剖析
+
+### SpringMVC 异常的处理流程
+
+异常分为编译时异常和运行时异常，编译时异常我们 try-cache 进行捕获，捕获后自行处理，而运行时异常是不可预期的，就需要规范编码来避免，在SpringMVC中，不管是编译异常还是运行时异常，都可以最终由SpringMVC提供的异常处理器进行统一处理，这样就避免了随时随地捕获处理的繁琐性。
+
+当然除了繁琐之外，我们在进行前后端分离异步开发时，往往返回统一格式的结果给客户端，例如：`{"code":200,"message":"","data":{"username":"haohao","age":null}}`，即使报异常了，也不能把状态码500直接扔给客户端丢给用户，需要将异常转换成符合上面格式的数据响应给客户端更友好。
+
+SpringMVC 处理异常的思路是，一路向上抛，都抛给前端控制器 DispatcherServlet ，DispatcherServlet 在调用异常处理器ExceptionResolver进行处理，如下图：
+
+![SpringMVC异常处理流程](image/SpringMVC异常处理流程.jpg)
+
+### SpringMVC 的异常处理方式
+
+SpringMVC 提供了以下三种处理异常的方式：
+
+* 简单异常处理器：使用SpringMVC 内置的异常处理器处理 SimpleMappingExceptionResolver； 
+* 自定义异常处理器：实现HandlerExceptionResolver接口，自定义异常进行处理；
+* 注解方式：使用@ControllerAdvice + @ExceptionHandler 来处理。
+
+**方式1：**使用SimpleMappingExceptionResolver处理一些简单异常，配置开启SimpleMappingExceptionResolver，并指定异常捕获后的处理动作，当发生了异常后，会被 SimpleMappingExceptionResolver 处理，跳转到我们配置的错误页面 error.html 给用户进行友好展示
+
+```xml
+<!--配置简单异常处理器--> 
+<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+	<!-- 异常捕获后动作：展示视图 -->
+	<property name="defaultErrorView" value="/error.html"/>
+</bean>
+```
+
+可以在配置SimpleMappingExceptionResolver时，指定一些参数，例如：异常的类型
+
+```xml
+<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+    <property name="defaultErrorView" value="/error.html"/>
+    <property name="exceptionMappings">
+        <props>
+            <!-- 配置异常类型对应的展示视图 key=异常对象的全限定类名 -->
+            <prop key="java.lang.RuntimeException">/error.html</prop>
+            <prop key="java.io.FileNotFoundException">/io.html</prop>
+        </props>
+    </property>
+</bean>
+```
+
+注解方式配置简单映射异常处理器
+
+```java
+@Bean
+public SimpleMappingExceptionResolver simpleMappingExceptionResolver() {
+    // 创建SimpleMappingExceptionResolver
+    SimpleMappingExceptionResolver resolver = new SimpleMappingExceptionResolver();
+    // 设置默认错误展示视图
+    resolver.setDefaultErrorView("/error.html");
+    // 定义Properties设置特殊异常对应的映射视图
+    Properties properties = new Properties();
+    properties.setProperty("java.lang.RuntimeException","/error.html");
+    properties.setProperty("java.io.FileNotFoundException","/io.html");
+    resolver.setExceptionMappings(properties);
+    return resolver;
+}
+```
+
+**方式2：**自定义异常处理器，实现HandlerExceptionResolver接口自定义异常处理器，可以完成异常逻辑的处理
+
+```java
+public class MyHandlerExceptionResolver implements HandlerExceptionResolver {
+    @Override
+    // 参数Object是当前目标方法处理器对象HandlerMethod
+    public ModelAndView resolveException(HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse, Object o, Exception e) {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("/error.html");
+        return modelAndView;
+    } 
+}
+```
+
+交给Spring管理异常处理器：`<bean class="com.itheima.exception.MyHandlerExceptionResolver"></bean>`
+
+自定义异常处理器，返回Json格式字符串信息
+
+```java
+@Component
+public class MyHandlerExceptionResolver implements HandlerExceptionResolver {
+    @Override
+    public ModelAndView resolveException(HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse, Object o, Exception e) {
+        // 编写要返回的json格式的字符串
+        String jsonStr = "{\"code\":0,\"message\":\"error\",\"data\":\"\"}";
+        try {
+            httpServletResponse.getWriter().write(jsonStr);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        return null;
+    } 
+}
+```
+
+**方式3：**使用注解 @ControllerAdvice + @ExceptionHandler 配置异常，@ControllerAdvice 注解本质是一个 @Component，也会被扫描到，与此同时，具备AOP功能，默认情况下对所有的Controller都进行拦截操作，拦截后干什么呢？就需要在结合@ExceptionHandler、@InitBinder、@ModelAttribute 注解一起使用了，此处我们讲解的是异常，所以是@ControllerAdvice + @ExceptionHandler的组合形式。
+
+编写全局异常处理器类，使用@ControllerAdvice标注，且@ExceptionHandler指定异常类型
+
+```java
+@ControllerAdvice
+public class GlobalExceptionHandler {
+    
+    @ExceptionHandler(RuntimeException.class)
+    public ModelAndView runtimeHandleException(RuntimeException e){
+        System.out.println("全局异常处理器执行...."+e);
+        ModelAndView modelAndView = new ModelAndView("/error.html");
+        return modelAndView;
+    }
+    
+    @ExceptionHandler(IOException.class)
+    @ResponseBody
+    public ResultInfo ioHandleException(IOException e){
+        // 模拟一个ResultInfo
+        ResultInfo resultInfo = new ResultInfo(0,"IOException",null);
+        return resultInfo;
+    } 
+}
+```
+
+如果全局异常处理器响应的数据都是Json格式的字符串的话，可以使用@RestControllerAdvice替代 @ControllerAdvice 和 @ResponseBody
+
+```java
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    
+    @ExceptionHandler(RuntimeException.class)
+    public ResultInfo runtimeHandleException(RuntimeException e) {
+        //模拟一个ResultInfo
+        ResultInfo resultInfo = new ResultInfo(0, "RuntimeException", null);
+        return resultInfo;
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResultInfo ioHandleException(IOException e) {
+        //模拟一个ResultInfo
+        ResultInfo resultInfo = new ResultInfo(0, "IOException", null);
+        return resultInfo;
+    }
+}
+```
+
+### 异常处理机制原理剖析
+
+初始化加载的处理器异常解析器，SpringMVC 的前置控制器在进行初始化的时候，会初始化处理器异常解析器HandlerExceptionResolver
+
+```java
+// 初始化处理器异常解析器
+this.initHandlerExceptionResolvers(context);
+
+private void initHandlerExceptionResolvers(ApplicationContext context) {
+    // 从容器中获得HandlerExceptionResolver的Map集合
+    Map<String, HandlerExceptionResolver> matchingBeans =
+        BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerExceptionResolver.class, true, false);
+    // 如果容器中没有HandlerExceptionResolver的话，则加载默认的HandlerExceptionResolver
+    if (this.handlerExceptionResolvers == null) {
+        // 从dispatcherServlet.properties中加载
+        this.handlerExceptionResolvers = this.getDefaultStrategies(context, HandlerExceptionResolver.class);
+    }
+}
+```
+
+<img src="image/异常处理机制原理剖析.jpg" alt="异常处理机制原理剖析" style="zoom:50%;" />
+
+加载DispatcherServlet.properties中默认的异常处理器
+
+```properties
+org.springframework.web.servlet.HandlerExceptionResolver=org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver,\
+org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver,\
+org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver
+```
+
+配置了自定义的异常处理器后，默认的异常处理器就不会被加载，当配置 `<mvc:annotation-driven />`或配置了注解@EnableWebMvc后，默认异常处理器和自定的处理器异常解析器都会被注册
+
+异常处理器加载完毕后，当发生异常时，就会进行处理，跟踪 DispatcherServlet 的 `doDispatch()` 方法
+
+```java
+// 类#方法：org.springframework.web.servlet.DispatcherServlet#doDispatch
+protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	// ...   
+    // 定义异常
+    Object dispatchException = null;
+     try {
+     // ... 省略代码 ...
+     } catch (Exception e) {
+     	dispatchException = e;
+     } catch (Throwable te) {
+     	dispatchException = new NestedServletException("Handler dispatch failed", te);
+     }
+     // 视图处理、拦截器最终方法调用、异常处理都在该方法内
+	this.processDispatchResult(processedRequest, response, mappedHandler, mv, 
+(Exception)dispatchException);
+	// ...
+}
+```
+
+跟踪processDispatchResult方法
+
+```java
+private void processDispatchResult(HttpServletRequest request, HttpServletResponse response,
+                                   @Nullable HandlerExecutionChain mappedHandler, @Nullable ModelAndView mv,
+                                   @Nullable Exception exception) throws Exception {
+    // 定义错误视图标识，默认为false
+ 	boolean errorView = false;
+     if (exception != null) {
+		// 判断当前捕获的异常是否是ModelAndViewDefiningException类型的异常
+        if (exception instanceof ModelAndViewDefiningException) {
+           	// 获得ModelAndViewDefiningException异常对象中的ModelAndView对象
+        	mv = ((ModelAndViewDefiningException)exception).getModelAndView();
+        } else {
+           	// 捕获到其他异常，获得当前发生异常的Handler对象
+           	Object handler = mappedHandler != null ? mappedHandler.getHandler() : null;
+           	// 执行processHandlerException 方法
+           	mv = this.processHandlerException(request, response, handler, exception);
+           	// 如果异常处理返回了ModelAndView 则修改错误视图的标识为true
+           	errorView = (mv != null);
+        }
+	}
+ 	// ... 省略其他代码 ...
+}
+```
+
+跟踪processHandlerException 方法
+
+```java
+protected ModelAndView processHandlerException(HttpServletRequest request, HttpServletResponse response,
+    @Nullable Object handler, Exception ex) throws Exception {
+    // 定义ModelAndView
+    ModelAndView exMv = null;
+    // 判断处理器异常解析器集合是否是空的
+    if (this.handlerExceptionResolvers != null) {
+        // 遍历处理器异常解析器List集合
+        Iterator var6 = this.handlerExceptionResolvers.iterator();
+        while (var6.hasNext()) {
+            // 取出每一个异常解析器
+            HandlerExceptionResolver resolver = (HandlerExceptionResolver)var6.next();
+            // 执行异常解析器的resolveException方法
+            exMv = resolver.resolveException(request, response, handler, ex);
+            // 只要有一个异常处理器返回ModelAndView则不在执行后面的异常处理器
+            if (exMv != null) {
+                break;
+            }
+        }
+    }
+    // 如果视图解析器不为null
+    if (exMv != null) {
+        return exMv;
+    } else {
+        throw ex;
+    }
+}
+```
+
+### SpringMVC 常用的异常解析器
+
+SpringMVC 相关的处理器异常解析器继承体系如下：
+
+![SpringMVC常用的异常解析器-1](image/SpringMVC常用的异常解析器-1.jpg)
+
+![SpringMVC常用的异常解析器-2](image/SpringMVC常用的异常解析器-2.jpg)
+
+`org.springframework.web.servlet.handler.HandlerExceptionResolverComposite`在上述`this.initHandlerExceptionResolvers(context);`有所体现 
+
+<img src="image/异常处理机制原理剖析.jpg" alt="异常处理机制原理剖析" style="zoom:50%;" />
+
+异常解析器 ExceptionHandlerExceptionResolver 部分源码：
+
+```java
+public class ExceptionHandlerExceptionResolver extends AbstractHandlerMethodExceptionResolver
+      implements ApplicationContextAware, InitializingBean {
+    
+    // 解析注解 @ExceptionHandler
+    @Override
+	@Nullable
+	protected ModelAndView doResolveHandlerMethodException(HttpServletRequest request,
+			HttpServletResponse response, @Nullable HandlerMethod handlerMethod, Exception exception) {
+        ServletInvocableHandlerMethod exceptionHandlerMethod = getExceptionHandlerMethod(handlerMethod, exception);
+        // ...
+        exceptionHandlerMethod.invokeAndHandle(webRequest, mavContainer, arguments);
+        // ...
+    }
+}
+```
