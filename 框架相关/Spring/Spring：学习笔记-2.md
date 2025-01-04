@@ -40,12 +40,11 @@ insert into account(name,money) values('ccc',1000);
 
 ```java
 // 账户的实体类
+@Data
 public class Account implements Serializable {
     private Integer id;
     private String name;
     private Float money;
-
-    // get/set
 }
 ```
 
@@ -356,9 +355,9 @@ public class AccountDaoImpl implements IAccountDao {
 
 **@Component**
 
-* 作用：把资源让 spring 来管理。相当于在 xml 中配置一个 bean。
+* 作用：把资源让 spring 来管理，相当于在 xml 中配置一个 bean。
 
-* 属性：value 指定 bean 的 id。如果不指定 value 属性，默认 bean 的 id 是当前类的类名。首字母小写。
+* 属性：value 指定 bean 的 id，如果不指定 value 属性，默认 bean 的 id 是当前类的类名，首字母小写。
 
 **@Controller @Service @Repository**
 
@@ -377,7 +376,7 @@ public class AccountDaoImpl implements IAccountDao {
 
 * 作用：
 
-  自动按照类型注入。当使用注解注入属性时， set 方法可以省略。
+  **自动按照类型注入**。当使用注解注入属性时， set 方法可以省略。
 
   它**只能注入其他 bean 类型**。
 
@@ -387,7 +386,7 @@ public class AccountDaoImpl implements IAccountDao {
 
 * 出现位置：可以是变量上，也可以是方法上；
 
-##### @Qualifier
+**@Qualifier**
 
 * 作用：在自动按照类型注入的基础之上，**再按照 Bean 的 id 注入**。它在给字段注入时不能独立使用，**必须和 @Autowire 一起使用**；但是给方法参数注入时，可以独立使用。
 * 属性：value 指定 bean 的 id。
@@ -660,6 +659,7 @@ public class SpringConfiguration {
 @Configuration
 @PropertySource("classpath:jdbc.properties")
 public class JdbcConfig{
+    // ...
 }
 ```
 
@@ -677,20 +677,22 @@ ApplicationContext ac = new AnnotationConfigApplicationContext(SpringConfigurati
 
 **问题**
 
-* 在测试类中，每个测试方法都有以下两行代码：
+在测试类中，每个测试方法都有以下两行代码：
 
-  ```java
-  ApplicationContext ac = new ClassPathXmlApplicationContext("bean.xml");
-  IAccountService as = ac.getBean("accountService", IAccountService.class);
-  ```
+```java
+ApplicationContext ac = new ClassPathXmlApplicationContext("bean.xml");
+IAccountService as = ac.getBean("accountService", IAccountService.class);
+```
 
-* 这两行代码的作用是获取容器，如果不写的话，直接会提示空指针异常。所以又不能轻易删掉。
+这两行代码的作用是获取容器，如果不写的话，直接会提示空指针异常。所以又不能轻易删掉。
 
 **解决思路分析**
 
-* 针对上述问题，这里需要的是程序能自动帮我们创建容器。一旦程序能自动的创建 spring 容器，则就无须手动创建了，问题也就解决了。
-* 考虑到 junit 单元测试的原理，但显然， junit 是无法实现的，因为它自己都无法知晓我们是否使用了 spring 框架，更不用说创建 spring 容器了。不过好在， junit 暴露了一个注解，可以让我们替换掉它的运行器。
-* 这时，我们需要依靠 spring 框架，因为它提供了一个运行器，可以读取配置文件（或注解）来创建容器。我们只需要告诉它配置文件在哪就行了。
+针对上述问题，这里需要的是程序能自动帮我们创建容器。一旦程序能自动的创建 spring 容器，则就无须手动创建了，问题也就解决了。
+
+考虑到 junit 单元测试的原理，但显然， junit 是无法实现的，因为它自己都无法知晓我们是否使用了 spring 框架，更不用说创建 spring 容器了。不过好在， junit 暴露了一个注解，可以让我们替换掉它的运行器。
+
+这时，我们需要依靠 spring 框架，因为它提供了一个运行器，可以读取配置文件（或注解）来创建容器。我们只需要告诉它配置文件在哪就行了。
 
 ### 3.2 配置步骤
 
@@ -722,9 +724,10 @@ public class AccountServiceTest {
 }  
 ```
 
-* `@ContextConfiguration` 注解：
-  * locations 属性： 用于指定配置文件的位置。如果是类路径下，需要用 `classpath:`表明
-  * classes 属性： 用于指定注解的类。当不使用 xml 配置时，需要用此属性指定注解类的位置，如：`@ContextConfiguration(classes = SpringConfiguration.class)`
+`@ContextConfiguration` 注解：
+
+* locations 属性： 用于指定配置文件的位置。如果是类路径下，需要用 `classpath:`表明
+* classes 属性： 用于指定注解的类。当不使用 xml 配置时，需要用此属性指定注解类的位置，如：`@ContextConfiguration(classes = SpringConfiguration.class)`
 
 **第四步：使用@Autowired 给测试类中的变量注入数据**
 

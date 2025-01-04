@@ -10,18 +10,11 @@
 
 它是 spring 框架中提供的一个对象，是对原始 Jdbc API 对象的简单封装。 spring 框架为我们提供了很多的操作模板类。
 
-操作关系型数据的：
+操作关系型数据的：JdbcTemplate、HibernateTemplate
 
-* JdbcTemplate
-* HibernateTemplate
+操作 nosql 数据库的：RedisTemplate
 
-操作 nosql 数据库的：
-
-* RedisTemplate
-
-操作消息队列的：
-
-* JmsTemplate
+操作消息队列的：JmsTemplate
 
 JdbcTemplate 在 `spring-jdbc-5.0.2.RELEASE.jar` 中，同时还需要导入一个与事务相关的包 `spring-tx-5.0.2.RELEASE.jar`
 
@@ -92,9 +85,9 @@ public JdbcTemplate(DataSource dataSource, boolean lazyInit) {
 
 之前已经接触过了两个数据源， C3P0 和 DBCP。要想使用这两数据源都需要导入对应的依赖
 
-* **配置 C3P0 数据源**
+**配置 C3P0 数据源**
 
-  导入到工程的 lib 目录。在 spring 的配置文件中配置：  
+导入到工程的 lib 目录。在 spring 的配置文件中配置：  
 
 ```xml
 <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
@@ -105,9 +98,9 @@ public JdbcTemplate(DataSource dataSource, boolean lazyInit) {
 </bean>
 ```
 
-* **配置 DBCP 数据源**
+**配置 DBCP 数据源**
 
-  导入到工程的 lib 目录。在 spring 的配置文件中配置：  
+导入到工程的 lib 目录。在 spring 的配置文件中配置：  
 
 ```xml
 <!-- 配置数据源 -->
@@ -119,9 +112,9 @@ public JdbcTemplate(DataSource dataSource, boolean lazyInit) {
 </bean>
 ```
 
-* **配置 spring 内置数据源**（用了这个）
+**配置 spring 内置数据源**（用了这个）
 
-  spring框架也提供了一个内置数据源，可以使用spring的内置数据源，它就在`spring-jdbc` 依赖中：  
+spring框架也提供了一个内置数据源，可以使用spring的内置数据源，它就在`spring-jdbc` 依赖中：  
 
 ```xml
 <bean id="dataSource"
@@ -142,7 +135,7 @@ jdbc.username=root
 jdbc.password=root
 ```
 
-* 引入外部的属性文件，方式1：
+引入外部的属性文件，方式1：
 
 ```xml
 <!-- 引入外部属性文件 -->
@@ -151,7 +144,7 @@ jdbc.password=root
 </bean>
 ```
 
-* 引入外部的属性文件，方式2：
+引入外部的属性文件，方式2：
 
 ```xml
 <context:property-placeholder location="classpath:jdbc.properties"/>
@@ -293,7 +286,7 @@ public class AccountRowMapper implements RowMapper<Account>{
 
 **查询一个操作**：
 
-* 使用 RowMapper 的方式：常用的方式
+使用 RowMapper 的方式：常用的方式
 
 ```java
 public class JdbcTemplateDemo3 {
@@ -310,7 +303,7 @@ public class JdbcTemplateDemo3 {
 }
 ```
 
-* 使用 ResultSetExtractor 的方式：不常用的方式
+使用 ResultSetExtractor 的方式：不常用的方式
 
 ```java
 public class JdbcTemplateDemo3 {
@@ -350,14 +343,15 @@ public class JdbcTemplateDemo3 {
 
 ```java
 // 账户的实体
+@Data
 public class Account implements Serializable {
     private Integer id;
     private String name;
     private Float money;
-
-    // get/set/toString
 }
 ```
+
+#### 1.5.1 方式1：在 dao 中定义 JdbcTemplate
 
 **第一种方式：在 dao 中定义 JdbcTemplate**
 
@@ -409,7 +403,7 @@ public class AccountDaoImpl implements IAccountDao {
 }
 ```
 
-* **配置文件**  
+**配置文件**  
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -439,7 +433,7 @@ public class AccountDaoImpl implements IAccountDao {
 </beans>
 ```
 
-* 这里有个小问题。就是当 dao 有很多时，每个 dao 都有一些重复性的代码。下面就是重复代码，后续可以把它抽取出来
+这里有个小问题。就是当 dao 有很多时，每个 dao 都有一些重复性的代码。下面就是重复代码，后续可以把它抽取出来
 
 ```java
 private JdbcTemplate jdbcTemplate;
@@ -449,11 +443,13 @@ public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
 }
 ```
 
+#### 1.5.2 方式2：让 dao 继承 JdbcDaoSupport
+
 **第二种方式：让 dao 继承 JdbcDaoSupport**
 
-* JdbcDaoSupport 是 spring 框架提供的一个类，该类中定义了一个 JdbcTemplate 对象，可以直接获取使用，但是要想创建该对象，**需要为其提供一个数据源**：
+JdbcDaoSupport 是 spring 框架提供的一个类，该类中定义了一个 JdbcTemplate 对象，可以直接获取使用，但是要想创建该对象，**需要为其提供一个数据源**：
 
-* 具体源码如下：  
+具体源码如下：  
 
 ```java
 public abstract class JdbcDaoSupport extends DaoSupport {
@@ -488,7 +484,7 @@ public abstract class JdbcDaoSupport extends DaoSupport {
 }
 ```
 
-* 此时的账户的Dao接口和对应的实现类
+此时的账户的Dao接口和对应的实现类
 
 ```java
 // 账户的接口
@@ -537,7 +533,7 @@ public class AccountDaoImpl2 extends JdbcDaoSupport implements IAccountDao {
 }
 ```
 
-* **配置文件**：  
+**配置文件**：  
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -618,9 +614,9 @@ public class AccountDaoImpl2 extends JdbcDaoSupport implements IAccountDao {
 * NEVER：以非事务方式运行，如果当前存在事务，抛出异常
 * NESTED：如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则执行 REQUIRED 类似的操作。  
 
-**超时时间**：默认值是-1，没有超时限制。如果有，以秒为单位进行设置。
+**超时时间（Timeout）**：默认值是-1，没有超时限制。如果有，以秒为单位进行设置。
 
-**是否是只读事务**：建议查询时设置为只读  
+**是否是只读事务（isReadOnly）**：建议查询时设置为只读  
 
 #### 2.2.3 TransactionStatus
 
@@ -704,7 +700,7 @@ public class AccountDaoImpl2 extends JdbcDaoSupport implements IAccountDao {
 
 **第三步：准备数据库表和实体类**
 
-* 准备数据库表
+准备数据库表
 
 ```sql
 -- 创建数据库
@@ -719,16 +715,15 @@ create table account(
 )character set utf8 collate utf8_general_ci;
 ```
 
-* 准备实体类
+准备实体类
 
 ```java
 // 账户的实体
+@Data
 public class Account implements Serializable {
     private Integer id;
     private String name;
     private Float money;
-
-    // get/set/toStirng
 }
 ```
 
@@ -840,7 +835,7 @@ public class AccountRowMapper implements RowMapper<Account>{
 }
 ```
 
-**第六步：在配置文件中配置业务层和持久层对**
+**第六步：在配置文件中配置业务层和持久层**
 
 ```xml
 <!-- 配置 service -->
@@ -1155,7 +1150,7 @@ tomcat 版本要求 8.5 及以上。
 
 **利用 JDK8 版本更新的内容**
 
-* 第一： 基于 JDK8 的反射增强
+第一： 基于 JDK8 的反射增强
 
 ```java
 
@@ -1219,10 +1214,10 @@ public class Test {
 
 > 过程略，因为本机没有装JDK7，反正，在反射创建对象上， JDK8 确实做了加强。
 
-* 第二： `@NonNull` 注解和 `@Nullable` 注解的使用
+第二： `@NonNull` 注解和 `@Nullable` 注解的使用
 
-  用 `@Nullable` 和 `@NotNull` 注解来显示表明可为空的参数和以及返回值。这样就够在编译的时候处理空值而不是在运行时抛出 NullPointerExceptions。
+用 `@Nullable` 和 `@NotNull` 注解来显示表明可为空的参数和以及返回值。这样就够在编译的时候处理空值而不是在运行时抛出 NullPointerExceptions。
 
-* 第三： 日志记录方面
+第三： 日志记录方面
 
-  Spring Framework 5.0 带来了 Commons Logging 桥接模块的封装, 它被叫做 `spring-jcl` 而不是标准的 Commons Logging。当然，无需任何额外的桥接，新版本也会对 `Log4j 2.x`， `SLF4J`，`JUL(java.util.logging)` 进行自动检测。  
+Spring Framework 5.0 带来了 Commons Logging 桥接模块的封装，它被叫做 `spring-jcl` 而不是标准的 Commons Logging。当然，无需任何额外的桥接，新版本也会对 `Log4j 2.x`， `SLF4J`，`JUL(java.util.logging)` 进行自动检测。  

@@ -210,7 +210,7 @@ public interface UserDao {}
 public class UserDaoImpl implements UserDao {}
 ```
 
-2——修改UserServiceImpl代码，添加一个`setUserDao(UserDao userDao)`用于接收注入的对象；
+2）修改UserServiceImpl代码，添加一个`setUserDao(UserDao userDao)`用于接收注入的对象；
 
 ```java
 public class UserServiceImpl implements UserService {
@@ -252,7 +252,7 @@ public class ApplicationContextTest {
 
 **BeanFactory与ApplicationContext的关系**
 
-1. BeanFactory是Spring的早期接口，称为Spring的Bean工厂，ApplicationContext是后期更高级接口，称之为 Spring 容器；
+1. BeanFactory是Spring的早期接口，称为**Spring的Bean工厂**；ApplicationContext是后期更高级接口，称之为 **Spring 容器**；
 2. ApplicationContext在BeanFactory基础上对功能进行了扩展，例如：监听功能、国际化功能等。BeanFactory的API更偏向底层，ApplicationContext的API大多数是对这些底层API的封装；
 3. Bean创建的主要逻辑和功能都被封装在BeanFactory中，ApplicationContext不仅继承了BeanFactory，而且ApplicationContext内部还维护着BeanFactory的引用，所以，ApplicationContext与BeanFactory既有继承关系，又有融合关系。
 4. Bean的初始化时机不同，原始BeanFactory是在首次调用getBean时才进行Bean的创建，而ApplicationContext则是配置文件加载，容器一创建就将Bean都实例化并初始化好。
@@ -278,9 +278,9 @@ public class UserDaoImpl implements UserDao {
 }
 ```
 
-* 断点观察，BeanFactory方式时，当调用getBean方法时才会把需要的Bean实例创建，即延迟加载；
+断点观察，BeanFactory方式时，当调用getBean方法时才会把需要的Bean实例创建，即延迟加载；
 
-* 而ApplicationContext是加载配置文件，容器创建时就将所有的Bean实例都创建好了，存储到一个单例池中，当调用getBean时直接从单例池中获取Bean实例返回
+而ApplicationContext是加载配置文件，容器创建时就将所有的Bean实例都创建好了，存储到一个单例池中，当调用getBean时直接从单例池中获取Bean实例返回
 
 ### BeanFactory的继承体系
 
@@ -459,8 +459,7 @@ Spring的实例化方式主要如下两种：
 
 ```java
 //有参构造方法
-public UserDaoImpl(String name){
-}
+public UserDaoImpl(String name){}
 ```
 
 有参构造在实例化Bean时，需要参数的注入，通过`<constructor-arg>`标签，嵌入在`<bean>`标签内部提供构造参数，如下：
@@ -509,7 +508,7 @@ System.out.println(userDao);
 
 **2）实例工厂方法实例化Bean**
 
-实例工厂方法，也就是非静态工厂方法产生Bean实例，与静态工厂方式比较，该方式需要先有工厂对象，在用工厂对象去调用非静态方法，所以在进行配置时，要先配置工厂Bean，在配置目标Bean
+实例工厂方法，也就是非静态工厂方法产生Bean实例，与静态工厂方式比较，该方式需要先有工厂对象，在用工厂对象去调用非静态方法，所以在进行配置时，要先配置工厂Bean，再配置目标Bean
 
 ```java
 //工厂类
@@ -590,7 +589,7 @@ UserDao userDao = applicationContext.getBean("userDao", UserDao.class);
 System.out.println(userDao);
 ```
 
-通过断点观察发现Spring容器创建时，UserDaoFactoryBean被实例化了，并存储到了单例池singletonObjects中，但是 `getObject()` 方法尚未被执行，UserDaoImpl也没被实例化，当首次用到UserDaoImpl时，才调用`getObject()` ，此工厂方式产生的Bean实例不会存储到单例池singletonObjects中，会存储到 factoryBeanObjectCache 缓存池中，并且后期每次使用到userDao都从该缓存池中返回的是同一个userDao实例。
+通过断点观察发现Spring容器创建时，UserDaoFactoryBean被实例化了，并存储到了单例池singletonObjects中，但是 `getObject()` 方法尚未被执行，UserDaoImpl也没被实例化，当首次用到UserDaoImpl时，才调用`getObject()` ，此工厂方式产生的Bean实例不会存储到单例池singletonObjects中，会存储到 **factoryBeanObjectCache 缓存池**中，并且后期每次使用到userDao都从该缓存池中返回的是同一个userDao实例。
 
 ![实现FactoryBean规范延迟实例化Bean](image/实现FactoryBean规范延迟实例化Bean.jpg)
 
@@ -604,7 +603,7 @@ Bean的依赖注入有两种方式：
 
 * 普通数据类型，例如：String、int、boolean等，通过value属性指定。
 * 引用数据类型，例如：UserDaoImpl、DataSource等，通过ref属性指定。
-* 集合数据类型，例如：List、Map、Properties等。
+* 集合数据类型，例如：List、Map、Properties等，见下方
 
 1）注入 `List<T>` 集合 – 普通数据
 
@@ -957,7 +956,7 @@ MyBatis原始获得SqlSessionFactory的方式：
 
 ```java
 //加载mybatis核心配置文件，使用Spring静态工厂方式
-InputStream in = Resources.getResourceAsStream(“mybatis - conifg.xml”);
+InputStream in = Resources.getResourceAsStream("mybatis-conifg.xml");
 //创建SqlSessionFactoryBuilder对象，使用Spring无参构造方式
 SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
 //调用SqlSessionFactoryBuilder的build方法，使用Spring实例工厂方式
@@ -1230,7 +1229,7 @@ public interface BeanPostProcessor
     @Nullable
     default Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException
     {
-        //在初始化方法执行之后，被添加到单例池singletonObjects之前被回调
+        // 在初始化方法执行之后，被添加到单例池singletonObjects之前被回调
         return bean;
     }
 }
@@ -1315,9 +1314,9 @@ BeanPostProcessor的after方法...
 
 Spring Bean的生命周期是从 Bean 实例化之后，即通过反射创建出对象之后，到Bean成为一个完整对象，最终存储到单例池中，这个过程被称为Spring Bean的生命周期。Spring Bean的生命周期大体上分为三个阶段：
 
-* Bean的实例化阶段：Spring框架会取出BeanDefinition的信息进行判断当前Bean的范围是否是singleton的，是否不是延迟加载的，是否不是FactoryBean等，最终将一个普通的singleton的Bean通过反射进行实例化；
-* Bean的初始化阶段：Bean创建之后还仅仅是个"半成品"，还需要对Bean实例的属性进行填充、执行一些Aware接口方法、执行BeanPostProcessor方法、执行InitializingBean接口的初始化方法、执行自定义初始化init方法等。该阶段是Spring最具技术含量和复杂度的阶段，AOP增强功能，后面要学习的Spring的注解功能等、spring高频面试题Bean的循环引用问题都是在这个阶段体现的；
-* Bean的完成阶段：经过初始化阶段，Bean就成为了一个完整的Spring Bean，被存储到单例池singletonObjects中去了，即完成了Spring Bean的整个生命周期
+* **Bean的实例化阶段**：Spring框架会取出BeanDefinition的信息进行判断当前Bean的范围是否是singleton的，是否不是延迟加载的，是否不是FactoryBean等，最终将一个普通的singleton的Bean通过反射进行实例化；
+* **Bean的初始化阶段**：Bean创建之后还仅仅是个"半成品"，还需要对Bean实例的属性进行填充、执行一些Aware接口方法、执行BeanPostProcessor方法、执行InitializingBean接口的初始化方法、执行自定义初始化init方法等。该阶段是Spring最具技术含量和复杂度的阶段，AOP增强功能，后面要学习的Spring的注解功能等、spring高频面试题Bean的循环引用问题都是在这个阶段体现的；
+* **Bean的完成阶段**：经过初始化阶段，Bean就成为了一个完整的Spring Bean，被存储到单例池singletonObjects中去了，即完成了Spring Bean的整个生命周期
 
 由于Bean的初始化阶段的步骤比较复杂，所以着重研究**Bean的初始化阶段**，Spring Bean的初始化过程涉及如下几个过程：
 
@@ -1433,8 +1432,8 @@ public class UserServiceImpl implements UserService, BeanFactoryAware, BeanNameA
 
 xml整合第三方框架有两种整合方案：
 
-* 不需要自定义名空间，不需要使用Spring的配置文件配置第三方框架本身内容，例如：MyBatis； 
-* 需要引入第三方框架命名空间，需要使用Spring的配置文件配置第三方框架本身内容，例如：Dubbo
+* 不需要自定义命名空间，不需要使用Spring的配置文件配置第三方框架本身内容，例如：MyBatis； 
+* 需要引入第三方框架命名空间，需要使用Spring的配置文件配置第三方框架本身内容，例如：Dubbo。
 
 #### Spring整合MyBatis
 
@@ -1636,90 +1635,90 @@ class MapperScannerConfigurer implements BeanDefinitionRegistryPostProcessor, In
 >
 > ```java
 > public class MapperScannerConfigurer
->     implements BeanDefinitionRegistryPostProcessor, InitializingBean, ApplicationContextAware, BeanNameAware {
->     
->     private String basePackage;
+>  implements BeanDefinitionRegistryPostProcessor, InitializingBean, ApplicationContextAware, BeanNameAware {
 > 
->     @Override
->     public void afterPropertiesSet() throws Exception {
->        notNull(this.basePackage, "Property 'basePackage' is required");
+>   private String basePackage;
+> 
+>   @Override
+>   public void afterPropertiesSet() throws Exception {
+>      notNull(this.basePackage, "Property 'basePackage' is required");
+>   }
+> 
+>   @Override
+>   public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
+>     if (this.processPropertyPlaceHolders) {
+>       processPropertyPlaceHolders();
 >     }
->     
->     @Override
->     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
->        if (this.processPropertyPlaceHolders) {
->          processPropertyPlaceHolders();
->        }
->   
->       ClassPathMapperScanner scanner = new ClassPathMapperScanner(registry);
->       // ...
->       // 1. ClassPathMapperScanner.scan方法
->       scanner.scan(
->         StringUtils.tokenizeToStringArray(this.basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
->        // 下面的常量：String CONFIG_LOCATION_DELIMITERS = ",; \t\n";
->     }
+> 
+>    ClassPathMapperScanner scanner = new ClassPathMapperScanner(registry);
+>    // ...
+>    // 1. ClassPathMapperScanner.scan方法
+>    scanner.scan(
+>      StringUtils.tokenizeToStringArray(this.basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
+>     // 下面的常量：String CONFIG_LOCATION_DELIMITERS = ",; \t\n";
+>   }
 > }
 > 
 > public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateComponentProvider {
->     
->      // 1. 上述的scanner.scan(...)
+> 
+>   // 1. 上述的scanner.scan(...)
 >   public int scan(String... basePackages) {
 >     int beanCountAtScanStart = this.registry.getBeanDefinitionCount();
->        // 2. 上述的scanner.scan(...)
->   	doScan(basePackages);  
->   	// Register annotation config processors, if necessary.
->   	if (this.includeAnnotationConfig) {
->       AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry);
->   	}  
->     return (this.registry.getBeanDefinitionCount() - beanCountAtScanStart);
->   }
+>     // 2. 上述的scanner.scan(...)
+> 	doScan(basePackages);  
+> 	// Register annotation config processors, if necessary.
+> 	if (this.includeAnnotationConfig) {
+>        AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry);
+> 	}  
+>   return (this.registry.getBeanDefinitionCount() - beanCountAtScanStart);
+> }
 > 
->   // 3.子类调用父类的susper.doScan
->   protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
->      	// ...
->   	Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
->   	for (String basePackage : basePackages) {
->   	  Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
->   	  for (BeanDefinition candidate : candidates) {
->   	    // ...
->   		if (checkCandidate(beanName, candidate)) {
->   		  // ...4.注册BeanDefinition，注册Mapper
->           BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
->   		  definitionHolder = 
->                  AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
->   		  beanDefinitions.add(definitionHolder);
+> // 3.子类调用父类的susper.doScan
+> protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
+>   	// ...
+> 	Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
+> 	for (String basePackage : basePackages) {
+> 	  Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
+> 	  for (BeanDefinition candidate : candidates) {
+> 	    // ...
+> 		if (checkCandidate(beanName, candidate)) {
+> 		  // ...4.注册BeanDefinition，注册Mapper
+>        BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
+> 		  definitionHolder = 
+>               AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
+> 		  beanDefinitions.add(definitionHolder);
 >           // 将扫描到的类注册到beanDefinitionMap中，此时beanClass是当前类全限定名
->   		  registerBeanDefinition(definitionHolder, this.registry);
->      		}
->   	  }
->     }
->     // 5. 返回beanDefinitions，再回到子类中
->     return beanDefinitions;
->      }
+> 		  registerBeanDefinition(definitionHolder, this.registry);
+>   		}
+> 	  }
+>    }
+>    // 5. 返回beanDefinitions，再回到子类中
+>    return beanDefinitions;
+>   }
 > }
 > 
 > public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 > 
 >   // 2. 上述的scanner.scan(...)
->       @Override
->     public Set<BeanDefinitionHolder> doScan(String... basePackages) {
->       // 3. 调用父类的ClassPathBeanDefinitionScanner.doScan
->       // 5. 父类调用完成后再返回到这里
->        Set<BeanDefinitionHolder> beanDefinitions = super.doScan(basePackages);
->      
->        if (beanDefinitions.isEmpty()) {
->       LOGGER.warn(() -> "No MyBatis mapper was found in '" + Arrays.toString(basePackages)
+>   @Override
+>   public Set<BeanDefinitionHolder> doScan(String... basePackages) {
+>     // 3. 调用父类的ClassPathBeanDefinitionScanner.doScan
+>     // 5. 父类调用完成后再返回到这里
+>     Set<BeanDefinitionHolder> beanDefinitions = super.doScan(basePackages);
+> 
+>     if (beanDefinitions.isEmpty()) {
+>    LOGGER.warn(() -> "No MyBatis mapper was found in '" + Arrays.toString(basePackages)
 >                + "' package. Please check your configuration.");
 >        } else {
 >       // 6. 获取到Mapper后执行方法
 >       processBeanDefinitions(beanDefinitions);
 >     }
->   
+> 
 >     return beanDefinitions;
 >   }
 > 
 >   // 6. 获取到Mapper后执行方法
->      private void processBeanDefinitions(Set<BeanDefinitionHolder> beanDefinitions) {
+>   private void processBeanDefinitions(Set<BeanDefinitionHolder> beanDefinitions) {
 >     GenericBeanDefinition definition;
 >     for (BeanDefinitionHolder holder : beanDefinitions) {
 > 	  definition = (GenericBeanDefinition) holder.getBeanDefinition();
@@ -1736,24 +1735,25 @@ class MapperScannerConfigurer implements BeanDefinitionRegistryPostProcessor, In
 >   }
 > }
 > 
-> // 7. MapperFactoryBean
+> // 7. MapperFactoryBean又是一个FactoryBean
 > public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements FactoryBean<T> {
 > 
 >   public MapperFactoryBean(Class<T> mapperInterface) {
->         this.mapperInterface = mapperInterface;
+>     this.mapperInterface = mapperInterface;
 >   }
 > 
 >   public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
->         this.sqlSessionTemplate = this.createSqlSessionTemplate(sqlSessionFactory);
+>     this.sqlSessionTemplate = this.createSqlSessionTemplate(sqlSessionFactory);
 >   }
 > 
 >   @Override
->       public T getObject() throws Exception {
+>   public T getObject() throws Exception {
+>     // 返回了对应的实现类了
 >     return getSqlSession().getMapper(this.mapperInterface);
 >   }
 > }
 > ```
-> 
+>
 
 #### Spring整合自定义命名空间框架
 
@@ -1765,9 +1765,11 @@ Spring 整合其他组件时就不像MyBatis这么简单了，例如Dubbo框架�
     xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
-xsi:schemaLocation="http://www.springframework.org/schema/beans 
-http://www.springframework.org/schema/beans/spring-beans.xsd 
-http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
+	xsi:schemaLocation="
+                    http://www.springframework.org/schema/beans 
+					http://www.springframework.org/schema/beans/spring-beans.xsd 
+					http://dubbo.apache.org/schema/dubbo 
+                    http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
     <!--配置应用名称-->
     <dubbo:application name="dubbo1-consumer"/>
     <!--配置注册中心地址-->
@@ -1796,10 +1798,11 @@ jdbc.password=root
     xmlns="http://www.springframework.org/schema/beans"
     xmlns:context="http://www.springframework.org/schema/context"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://www.springframework.org/schema/beans 
-http://www.springframework.org/schema/beans/spring-beans.xsd
-http://www.springframework.org/schema/context 
-http://www.springframework.org/schema/context/spring-context.xsd">
+	xsi:schemaLocation="
+                    http://www.springframework.org/schema/beans 
+					http://www.springframework.org/schema/beans/spring-beans.xsd
+					http://www.springframework.org/schema/context 
+					http://www.springframework.org/schema/context/spring-context.xsd">
     <context:property-placeholder location="classpath:jdbc.properties" />
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
         <property name="url" value="${jdbc.url}"></property>
@@ -1815,15 +1818,17 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 
 #### 命名空间解析原理
 
+> https://www.bilibili.com/video/BV1rt4y1u7q5/?p=63&vd_source=4c633da594fb94063a94f02719579ff4
+
 原理剖析解析过程，只能从源头ClassPathXmlApplicationContext入手，经历复杂的源码追踪，找到如下两个点：
 
-1）在创建DefaultNamespaceHandlerResolver时，为处理器映射地址handlerMappingsLocation属性赋值，并加载命名空间处理器到 `Map<String, Object> handlerMappings` 中去
+**1）**在创建DefaultNamespaceHandlerResolver时，为处理器映射地址handlerMappingsLocation属性赋值，并加载命名空间处理器到 `Map<String, Object> handlerMappings` 中去
 
 ![Spring xml方式整合第三方框架-3](image/Spring xml方式整合第三方框架-3.jpg)
 
 第一点完成后，Map集合handlerMappings就被填充了很多XxxNamespaceHandler，继续往下追代码
 
-2）在DefaultBeanDefinitionDocumentReader的parseBeanDefinitions方法中，发现如下逻辑：
+**2）**在DefaultBeanDefinitionDocumentReader的parseBeanDefinitions方法中，发现如下逻辑：
 
 ```java
 if(delegate.isDefaultNamespace(ele)) {
@@ -1887,8 +1892,8 @@ public class ContextNamespaceHandler extends NamespaceHandlerSupport {
 
 通过上述分析，我们清楚的了解了**外部命名空间标签的执行流程**，如下：
 
-* 将自定义标签的约束与物理约束文件与网络约束名称的约束以键值对形式存储到一个**spring.schemas**文件里，该文件存储在类加载路径的 META-INF里，Spring会自动加载到; 
-* 将自定义命名空间的名称与自定义命名空间的处理器映射关系以键值对形式存在到一个叫**spring.handlers**文件里，该文件存储在类加载路径的 META-INF里，Spring会自动加载到; 
+* 将自定义标签的约束与物理约束文件与网络约束名称的约束以键值对形式存储到一个**spring.schemas**文件里，该文件存储在类加载路径的 META-INF里，Spring会自动加载到；
+* 将自定义命名空间的名称与自定义命名空间的处理器映射关系以键值对形式存在到一个叫**spring.handlers**文件里，该文件存储在类加载路径的 META-INF里，Spring会自动加载到；
 * 准备好NamespaceHandler，如果命名空间只有一个标签，那么直接在parse方法中进行解析即可，一般解析结果就是注册该标签对应的BeanDefinition。如果命名空间里有多个标签，那么可以在init方法中为每个标签都注册一个BeanDefinitionParser，在执行NamespaceHandler的parse方法时在分流给不同的BeanDefinitionParser进行解析(重写doParse方法即可)。
 
 #### 案例：自定义命名空间
@@ -1900,10 +1905,11 @@ public class ContextNamespaceHandler extends NamespaceHandlerSupport {
     xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/xmlSchema-instance"
     xmlns:haohao="http://www.itheima.com/haohao"
-xsi:schemaLocation="http://www.springframework.org/schema/beans 
-http://www.springframework.org/schema/beans/spring-beans.xsd
-http://www.itheima.com/haohao 
-http://www.itheima.com/haohao/haohao-annotation.xsd">
+xsi:schemaLocation="
+                    http://www.springframework.org/schema/beans 
+					http://www.springframework.org/schema/beans/spring-beans.xsd
+					http://www.itheima.com/haohao 
+					http://www.itheima.com/haohao/haohao-annotation.xsd">
     <haohao:annotation-driven/>
 </beans>
 ```
@@ -1922,7 +1928,7 @@ http://www.itheima.com/haohao/haohao-annotation.xsd">
 1. 在applicationContext.xml配置文件中引入命名空间
 2. 在applicationContext.xml配置文件中使用自定义的标签
 
-编写schema约束文件haohao-annotation.xsd
+**2）编写schema约束文件haohao-annotation.xsd**
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1934,11 +1940,11 @@ targetNamespace="http://www.itheima.com/haohao">
 </xsd:schema>
 ```
 
-在类加载路径下创建META目录，编写约束映射文件spring.schemas和处理器映射文件spring.handlers
+**3）在类加载路径下创建META目录，编写约束映射文件spring.schemas和处理器映射文件spring.handlers**
 
 ![自定义命名空间](image/自定义命名空间.jpg)
 
-编写命名空间处理器 HaohaoNamespaceHandler，在init方法中注册HaohaoBeanDefinitionParser
+**4）编写命名空间处理器 HaohaoNamespaceHandler，在init方法中注册HaohaoBeanDefinitionParser**
 
 ```java
 public class HaohaoNamespaceHandler extends NamespaceHandlerSupport {
@@ -1949,7 +1955,7 @@ public class HaohaoNamespaceHandler extends NamespaceHandlerSupport {
 }
 ```
 
-编写标签的解析器 HaohaoBeanDefinitionParser，在parse方法中注册HaohaoBeanPostProcessor
+**5）编写标签的解析器 HaohaoBeanDefinitionParser，在parse方法中注册HaohaoBeanPostProcessor**
 
 ```java
 public class HaohaoBeanDefinitionParser implements BeanDefinitionParser {
@@ -1965,7 +1971,7 @@ public class HaohaoBeanDefinitionParser implements BeanDefinitionParser {
 }
 ```
 
-编写HaohaoBeanPostProcessor
+**6）编写HaohaoBeanPostProcessor**
 
 ```java
 public class HaohaoBeanPostProcessor implements BeanPostProcessor {
@@ -2024,8 +2030,8 @@ xsi:schemaLocation="
 http://www.springframework.org/schema/beans 
 http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/context 
-http://www.springframework.org/schema/context/spring-context.xsd
-">
+http://www.springframework.org/schema/context/spring-context.xsd">
+    
     <!-- 告知Spring框架去itheima包及其子包下去扫描使用了注解的类 -->
     <context:component-scan base-package="com.itheima"/>
 </beans>
@@ -2183,7 +2189,7 @@ PS：工厂方法所在类必须要被Spring管理
 
 如果@Bean工厂方法需要**参数**的话，则有如下几种注入方式：
 
-* 使用@Autowired 根据类型自动进行Bean的匹配，@Autowired可以省略 ； 
+* 使用@Autowired 根据类型自动进行Bean的匹配，**@Autowired可以省略** ； 
 * 使用@Qualifier 根据名称进行Bean的匹配；
 * 使用@Value 根据名称进行普通数据类型匹配。
 
@@ -2265,7 +2271,7 @@ public class ApplicationContextConfig {}
 
 ### Spring 配置其他注解
 
-扩展：@Primary注解用于标注相同类型的Bean优先被使用权，@Primary 是Spring3.0引入的，与@Component和@Bean一起使用，标注该Bean的优先级更高，则在通过类型获取Bean或通过@Autowired根据类型进行注入时，会选用优先级更高的
+**扩展：@Primary注解**用于标注相同类型的Bean优先被使用权，@Primary 是Spring3.0引入的，与@Component和@Bean一起使用，标注该Bean的优先级更高，则在通过类型获取Bean或通过@Autowired根据类型进行注入时，会选用优先级更高的
 
 ```java
 @Repository("userDao")
@@ -2287,7 +2293,7 @@ public UserDao userDao02() {
 }
 ```
 
-扩展：@Profile 注解的作用同在xml配置时学习profile属性，是进行环境切换使用的，`<beans profile="test">`
+**扩展：@Profile 注解**的作用同在xml配置时学习profile属性，是进行环境切换使用的，`<beans profile="test">`
 
 注解 @Profile 标注在类或方法上，标注当前产生的Bean从属于哪个环境，只有激活了当前环境，被标注的Bean才能被注册到Spring容器里，不指定环境的Bean，任何环境下都能注册到Spring容器里
 
@@ -2311,9 +2317,9 @@ public class UserDaoImpl2 implements UserDao {}
 
 使用@Component等注解配置完毕后，要配置组件扫描才能使注解生效
 
-* xml配置组件扫描：`<context:component-scan base-package="com.itheima"/>`
+* 方式1：xml配置组件扫描：`<context:component-scan base-package="com.itheima"/>`
 
-* 配置类配置组件扫描：
+* 方式2：配置类配置组件扫描：
 
   ```java
   @Configuration
@@ -2337,9 +2343,11 @@ public void init() {
 }
 ```
 
-将ComponentScanBeanDefinitionParser进行了注册，对其源码进行跟踪，最终将标注的@Component的类，生成对应的BeanDefiition进行了注册
+将ComponentScanBeanDefinitionParser进行了注册，对其源码进行跟踪，**最终将标注的@Component的类，生成对应的BeanDefiition进行了注册**
 
 使用配置类配置组件扫描，使用AnnotationConfigApplicationContext容器在进行创建时，内部调用了如下代码，该工具注册了几个Bean后处理器：
+
+> 看视频：https://www.bilibili.com/video/BV1rt4y1u7q5/?p=78
 
 ![Spring注解的解析原理-2](image/Spring注解的解析原理-2.jpg)
 
@@ -2414,7 +2422,7 @@ public @interface MapperScan {
 }
 ```
 
-重点关注一下@Import({MapperScannerRegistrar.class})，当@MapperScan被扫描加载时，会解析@Import注解，从而加载指定的类，此处就是加载了MapperScannerRegistrar
+重点关注一下`@Import({MapperScannerRegistrar.class})`，当@MapperScan被扫描加载时，会解析@Import注解，从而加载指定的类，此处就是加载了MapperScannerRegistrar
 
 MapperScannerRegistrar实现了ImportBeanDefinitionRegistrar接口，Spring会自动调用registerBeanDefinitions方法，该方法中又注册MapperScannerConfigurer类，而MapperScannerConfigurer类作用是扫描Mapper，向容器中注册Mapper对应的MapperFactoryBean，前面讲过，此处不在赘述了：
 

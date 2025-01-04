@@ -152,7 +152,7 @@ public class UserController {
 
 ![SpringMVC关键组件浅析-2](image/SpringMVC关键组件浅析-2.jpg)
 
-SpringMVC的默认组件，SpringMVC 在前端控制器 DispatcherServlet加载时，就会进行初始化操作，在进行初始化时，就会加载SpringMVC默认指定的一些组件，这些默认组件配置在 DispatcherServlet.properties 文件中，该文件存在与spring-webmvc-5.3.7.jar包下的 org\springframework\web\servlet\DispatcherServlet.properties
+SpringMVC的默认组件，SpringMVC 在前端控制器 DispatcherServlet 加载时，就会进行初始化操作，在进行初始化时，就会加载SpringMVC默认指定的一些组件，这些默认组件配置在 DispatcherServlet.properties 文件中，该文件存在与spring-webmvc-5.3.7.jar包下的 org\springframework\web\servlet\DispatcherServlet.properties
 
 ```properties
 # 省略其他
@@ -193,7 +193,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 ### 请求映射路径的配置
 
-配置映射路径，映射器处理器才能找到Controller的方	法资源，目前主流映射路径配置方式就是@RequestMapping
+配置映射路径，映射器处理器才能找到Controller的方法资源，目前主流映射路径配置方式就是@RequestMapping
 
 ![请求映射路径的配置](image/请求映射路径的配置.jpg)
 
@@ -231,7 +231,7 @@ public String show() {}
 public String show() {}
 ```
 
-当@RequestMapping 需要限定访问方式时，可以通过method属性设置
+当@RequestMapping需要限定访问方式时，可以通过method属性设置
 
 ```java
 //请求地址是/show,且请求方式必须是POST才能匹配成功
@@ -337,7 +337,7 @@ public String show(@RequestParam List<String> hobbies) {
 }
 ```
 
-接收数组或集合数据，客户端传递多个不同命参数时，也可以使用Map<String,Object> 进行接收，同样需要用@RequestParam 进行修饰
+接收数组或集合数据，客户端传递多个不同命参数时，也可以使用`Map<String,Object>` 进行接收，同样需要用@RequestParam 进行修饰
 
 ```java
 // username=haohao&age=18
@@ -372,7 +372,7 @@ public String show(User user) {
 }
 ```
 
-接收实体JavaBean属性数据，嵌套JavaBean数据：提交的参数名称用 . 去描述嵌套对象的属性关系即可
+接收实体JavaBean属性数据，嵌套JavaBean数据：提交的参数名称用`.` 去描述嵌套对象的属性关系即可
 
 ```java
 // username=haohao&address.city=tianjin&address.area=jinghai
@@ -614,6 +614,7 @@ public String request1(HttpServletRequest request) {
     request.setAttribute("username", "haohao");
     return "/request2";
 }
+
 @GetMapping("/request2")
 public String request2(@RequestAttribute("username") String username) {
     System.out.println(username);
@@ -673,7 +674,7 @@ url-pattern配置为 / 的Servlet我们称其为缺省的Servlet，作用是当�
 
 **静态资源请求的三种解决方案：**
 
-第一种方案，可以再次激活Tomcat的DefaultServlet，Servlet的url-pattern的匹配优先级是：精确匹配>目录匹配>扩展名匹配>缺省匹配，所以可以指定某个目录下或某个扩展名的资源使用DefaultServlet进行解析：
+1）第一种方案：可以再次激活Tomcat的DefaultServlet，Servlet的url-pattern的匹配优先级是：精确匹配>目录匹配>扩展名匹配>缺省匹配，所以可以指定某个目录下或某个扩展名的资源使用DefaultServlet进行解析：
 
 ```xml
 <servlet-mapping>
@@ -686,7 +687,7 @@ url-pattern配置为 / 的Servlet我们称其为缺省的Servlet，作用是当�
 </servlet-mapping>
 ```
 
-第二种方式，在spring-mvc.xml中去配置静态资源映射，匹配映射路径的请求到指定的位置去匹配资源
+2）第二种方式：在spring-mvc.xml中去配置静态资源映射，匹配映射路径的请求到指定的位置去匹配资源
 
 ```xml
 <!-- mapping是映射资源路径，location是对应资源所在的位置 -->
@@ -696,7 +697,7 @@ url-pattern配置为 / 的Servlet我们称其为缺省的Servlet，作用是当�
 <mvc:resources mapping="/html/*" location="/html/"/>
 ```
 
-第三种方式，在spring-mvc.xml中去配置`<mvc:default-servlet-handler>`，该方式是注册了一个DefaultServletHttpRequestHandler 处理器，静态资源的访问都由该处理器去处理，这也是开发中使用最多的
+3）第三种方式：在spring-mvc.xml中去配置`<mvc:default-servlet-handler>`，该方式是注册了一个DefaultServletHttpRequestHandler 处理器，静态资源的访问都由该处理器去处理，这也是开发中使用最多的
 
 `<mvc:default-servlet-handler/>`
 
@@ -725,7 +726,7 @@ public BeanDefinition parse(Element element, ParserContext context) {
 
 `<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>`
 
-根据上面的讲解，可以总结一下，要想使用@RequestMapping正常映射到资源方法，同时静态资源还能正常访问，还可以将请求json格式字符串和JavaBean之间自由转换，我们就需要在spring-mvc.xml中尽心如下配置：
+根据上面的讲解，可以总结一下，要想使用@RequestMapping正常映射到资源方法，同时静态资源还能正常访问，还可以将请求json格式字符串和JavaBean之间自由转换，我们就需要在spring-mvc.xml中进行如下配置：
 
 ```xml
 <!-- 显示配置RequestMappingHandlerMapping -->
@@ -750,7 +751,7 @@ public BeanDefinition parse(Element element, ParserContext context) {
 <mvc:default-servlet-handler/>
 ```
 
-PS：<mvc:annotation-driven> 标签在不同的版本中，帮我们注册的组件不同，Spring 3.0.X 版本注册是DefaultAnnotationHandlerMapping 和 AnnotationMethodHandlerAdapter，由于框架的发展，从Spring 3.1.X 开始注册组件变为 RequestMappingHandlerMapping和RequestMappingHandlerAdapter
+PS：`<mvc:annotation-driven>` 标签在不同的版本中，帮我们注册的组件不同，Spring 3.0.X 版本注册是DefaultAnnotationHandlerMapping 和 AnnotationMethodHandlerAdapter，由于框架的发展，从Spring 3.1.X 开始注册组件变为 RequestMappingHandlerMapping和RequestMappingHandlerAdapter
 
 ## 03. SpringMVC的响应处理
 
@@ -800,8 +801,8 @@ public String response2() throws IOException {
 
 其实此处的回写数据，跟上面回写数据给客户端的语法方式一样，只不过有如下一些区别：
 
-* 同步方式回写数据，是**将数据响应给浏览器**进行页面展示的，而异步方式回写数据一般是**回写给Ajax引擎**的，即谁访问服务器端，服务器端就将数据响应给谁
-* 同步方式回写的数据，一般就是一些无特定格式的字符串，而异步方式回写的数据大多是Json格式字符串
+* 同步方式回写数据，是**将数据响应给浏览器**进行页面展示的；而异步方式回写数据一般是**回写给Ajax引擎**的，即谁访问服务器端，服务器端就将数据响应给谁
+* 同步方式回写的数据，一般就是一些无特定格式的字符串；而异步方式回写的数据大多是Json格式字符串
 
 回写普通数据使用@ResponseBody标注方法，直接返回字符串即可，此处不在说明；
 
@@ -1076,6 +1077,7 @@ void triggerAfterCompletion(HttpServletRequest request, HttpServletResponse resp
 跟之前全注解开发思路一致， xml配置文件使用核心配置类替代，xml中的标签使用对应的注解替代
 
 ```xml
+<!--组件扫描-->
 <context:component-scan base-package="com.itheima.controller"/>
 <!--注解驱动-->
 <mvc:annotation-driven/>
@@ -1279,11 +1281,19 @@ AnnotationConfigWebApplicationContext {
 </servlet-mapping>
 ```
 
-Servlet3.0环境中，web容器提供了javax.servlet.ServletContainerInitializer接口，实现了该接口后，在对应的类加载路径的META-INF/services 目录创建一个名为javax.servlet.ServletContainerInitializer的文件，文件内容指定具体的ServletContainerInitializer实现类，那么，当web容器启动时就会运行这个初始化器做一些组件内的初始化工作；
+Servlet3.0环境中，web容器提供了javax.servlet.ServletContainerInitializer接口，实现了该接口后，在对应的类加载路径的META-INF/services 目录创建一个名为javax.servlet.ServletContainerInitializer的文件，文件内容指定具体的ServletContainerInitializer实现类，那么，当web容器启动时就会运行这个初始化器做一些组件内的初始化工作；【SPI】
 
-基于这个特性，Spring就定义了一个SpringServletContainerInitializer实现了ServletContainerInitializer接口; 
+基于这个特性，Spring就定义了一个SpringServletContainerInitializer实现了ServletContainerInitializer接口;
 
-而SpringServletContainerInitializer会查找实现了WebApplicationInitializer的类（`@HandlesTypes({WebApplicationInitializer.class})`），Spring又提供了一个WebApplicationInitializer的基础实现类AbstractAnnotationConfigDispatcherServletInitializer，当我们编写类继承AbstractAnnotationConfigDispatcherServletInitializer时，容器就会自动发现我们自己的类，在该类中我们就可以配置Spring和SpringMVC的入口了。
+> ```java
+> public interface ServletContainerInitializer {
+>     // param1:会找到使用了注解@HandlesTypes中的实现类注入
+>     // Param2:servlet上下文对象
+>     void onStartup(Set<Class<?>> var1, ServletContext var2) throws ServletException;
+> }
+> ```
+
+而SpringServletContainerInitializer会查找实现了WebApplicationInitializer的类（因为SpringServletContainerInitializer类上加了注解`@HandlesTypes({WebApplicationInitializer.class})`），Spring又提供了一个WebApplicationInitializer的基础实现类AbstractAnnotationConfigDispatcherServletInitializer，当我们编写类继承AbstractAnnotationConfigDispatcherServletInitializer时，容器就会自动发现我们自己的类，在该类中我们就可以配置Spring和SpringMVC的入口了。
 
 按照下面的配置就可以完全省略web.xml
 
@@ -1490,7 +1500,7 @@ public void onApplicationEvent(ContextRefreshedEvent event) {
 
 protected void onRefresh(ApplicationContext context) {
     // For subclasses: do nothing by default.
-    // 子类的实现了改方法
+    // 子类的实现了该方法
 }
 
 // 类：org.springframework.web.servlet.DispatcherServlet#onRefresh
@@ -1575,7 +1585,7 @@ private void initHandlerMappings(ApplicationContext context) {
 
 ### 前端控制器执行主流程
 
-上面讲解了一下，当服务器启动时，DispatcherServlet 会执行初始化操作，接下来，每次访问都会执行service方法，我们先宏观的看一下执行流程，在去研究源码和组件执行细节
+上面讲解了一下，当服务器启动时，DispatcherServlet 会执行初始化操作，接下来，每次访问都会执行service方法，我们先宏观的看一下执行流程，再去研究源码和组件执行细节
 
 ![SpringMVC关键组件浅析-2](image/SpringMVC关键组件浅析-2.jpg)
 
@@ -1628,7 +1638,7 @@ protected void doDispatch(HttpServletRequest request, HttpServletResponse respon
 }
 ```
 
-具体分析：mappedHandler = this.getHandler(processedRequest);
+**1）**具体分析：`mappedHandler = this.getHandler(processedRequest);`
 
 ```java
 // getHandler:匹配处理器映射器HandlerMapping，返回处理器执行链对象
@@ -1684,7 +1694,7 @@ protected HandlerExecutionChain getHandlerExecutionChain(Object handler, HttpSer
 }
 ```
 
-具体分析：`mv = ha.handle(processedRequest, response, mappedHandler.getHandler());`
+**2）**具体分析：`mv = ha.handle(processedRequest, response, mappedHandler.getHandler());`
 
 ```java
 // 截取上方内容：
@@ -1763,7 +1773,7 @@ protected Object doInvoke(Object... args) throws Exception {
 }
 ```
 
-## 07. SpringMVC的组件原理剖析
+## 07. SpringMVC的异常处理机制
 
 ### SpringMVC 异常的处理流程
 
@@ -1915,7 +1925,7 @@ public class GlobalExceptionHandler {
 初始化加载的处理器异常解析器，SpringMVC 的前置控制器在进行初始化的时候，会初始化处理器异常解析器HandlerExceptionResolver
 
 ```java
-// 初始化处理器异常解析器
+// 初始化处理器异常解析器【见前端控制器初始化中的SpinrgMVC 9大组件】
 this.initHandlerExceptionResolvers(context);
 
 private void initHandlerExceptionResolvers(ApplicationContext context) {
@@ -2029,7 +2039,7 @@ SpringMVC 相关的处理器异常解析器继承体系如下：
 
 ![SpringMVC常用的异常解析器-2](image/SpringMVC常用的异常解析器-2.jpg)
 
-`org.springframework.web.servlet.handler.HandlerExceptionResolverComposite`在上述`this.initHandlerExceptionResolvers(context);`有所体现 
+`org.springframework.web.servlet.handler.HandlerExceptionResolverComposite`在上述`this.initHandlerExceptionResolvers(context);`有所体现【见前端控制器初始化中的SpinrgMVC 9大组件】
 
 <img src="image/异常处理机制原理剖析.jpg" alt="异常处理机制原理剖析" style="zoom:50%;" />
 
@@ -2039,11 +2049,11 @@ SpringMVC 相关的处理器异常解析器继承体系如下：
 public class ExceptionHandlerExceptionResolver extends AbstractHandlerMethodExceptionResolver
       implements ApplicationContextAware, InitializingBean {
     
-    // 解析注解 @ExceptionHandler
     @Override
 	@Nullable
 	protected ModelAndView doResolveHandlerMethodException(HttpServletRequest request,
 			HttpServletResponse response, @Nullable HandlerMethod handlerMethod, Exception exception) {
+        // 解析注解 @ExceptionHandler
         ServletInvocableHandlerMethod exceptionHandlerMethod = getExceptionHandlerMethod(handlerMethod, exception);
         // ...
         exceptionHandlerMethod.invokeAndHandle(webRequest, mavContainer, arguments);

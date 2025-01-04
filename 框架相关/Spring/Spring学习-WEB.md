@@ -63,7 +63,6 @@ public class ContextLoaderListener implements ServletContextListener {
         ApplicationContext app = new ClassPathXmlApplicationContext(contextConfigLocation);
         //2、将容器存储到servletContext域中
         servletContext.setAttribute("applicationContext",app);
-
     }
 }
 ```
@@ -194,7 +193,7 @@ Java程序员在开发一般都是MVC+三层架构，MVC是web开发模式，传
 
 ![web层MVC框架思想与设计思路-1](image/web层MVC框架思想与设计思路-1.jpg)
 
-原始Javaweb开发中，Servlet充当Controller的角色，Jsp充当View角色，JavaBean充当模型角色，后期Ajax异步流行后，在加上现在前后端分离开发模式成熟后，View就被原始Html+Vue替代。原始Javaweb开发中，Service充当Controller有很多弊端，显而易见的有如下几个：
+原始Javaweb开发中，Servlet充当Controller的角色，Jsp充当View角色，JavaBean充当模型角色；后期Ajax异步流行后，在加上现在前后端分离开发模式成熟后，View就被原始Html+Vue替代。原始Javaweb开发中，Servlet充当Controller有很多弊端，显而易见的有如下几个：
 
 ![web层MVC框架思想与设计思路-2](image/web层MVC框架思想与设计思路-2.jpg)
 

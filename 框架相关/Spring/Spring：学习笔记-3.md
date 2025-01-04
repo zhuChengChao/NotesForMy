@@ -251,24 +251,27 @@ public class TransactionManager {
 
 **动态代理的特点**
 
-1. 字节码随用随创建，随用随加载，即：**不修改源码的基础上对方法增强**
-2. 它与静态代理的区别也在于此。因为静态代理是字节码一上来就创建好，并完成加载。装饰者模式就是静态代理的一种体现。
+字节码随用随创建，随用随加载，即：**不修改源码的基础上对方法增强**
+
+它与静态代理的区别也在于此。因为静态代理是字节码一上来就创建好，并完成加载。
+
+> 装饰者模式就是静态代理的一种体现。
 
 **动态代理常用的有两种方式**
 
-1. **基于接口的动态代理**  
+**基于接口的动态代理**  
 
-   提供者： JDK 官方的 Proxy 类。
+提供者： JDK 官方的 Proxy 类。
 
-   要求：**被代理类最少实现一个接口**。
+要求：**被代理类最少实现一个接口**。
 
-2. **基于子类的动态代理**
+**基于子类的动态代理**
 
-   提供者：第三方的 CGLib，如果报 asmxxxx 异常，需要导入 asm.jar，
+提供者：第三方的 CGLib，如果报 asmxxxx 异常，需要导入 asm.jar，
 
-   涉及的类：Enhancer，使用Enhancer类中的create方法
+涉及的类：Enhancer，使用Enhancer类中的create方法
 
-   要求：**被代理类不能用 final 修饰的类（最终类）**，这是因为CGLIB是基于子类进行的动态代理，而final修饰的类无法创建子类
+要求：**被代理类不能用 final 修饰的类（最终类）**，这是因为CGLIB是基于子类进行的动态代理，而final修饰的类无法创建子类
 
 #### 1.3.2 基于接口的动态代理
 
@@ -519,11 +522,11 @@ Spring 的 aop，就是通过配置的方式，实现上一章节的功能。
 
 1. **开发阶段**
 
-   编写核心业务代码（开发主线）：大部分程序员来做，要求熟悉业务需求。
+   编写核心业务代码（开发主线，大部分程序员来做，要求熟悉业务需求）
 
-   把公用代码抽取出来，制作成通知。（开发阶段最后再做）： AOP 编程人员来做。
+   把公用代码抽取出来，制作成通知。（开发阶段最后再做，AOP 编程人员来做）
 
-   在配置文件中，声明切入点与通知间的关系，即切面。： AOP 编程人员来做。
+   在配置文件中，声明切入点与通知间的关系，即切面。（AOP 编程人员来做）
 
 2. **运行阶段（ Spring 框架完成的）**
 
@@ -538,7 +541,7 @@ Spring 的 aop，就是通过配置的方式，实现上一章节的功能。
 
 ### 2.2 基于XML的AOP配置
 
-还是采用账户转账作为示例，并且把 spring 的 ioc 也一起应用进来。
+还是采用账户转账作为示例，并且把 spring 的 IOC 也一起应用进来。
 
 #### 2.2.1 环境搭建
 
@@ -682,12 +685,13 @@ public class TransactionManager {
 
 **第三步：使用 `aop:aspect` 配置切面**  
 
-`aop:aspect:`
+`aop:aspect`
 
-* 作用：用于配置切面。
-* 属性：
-  * id：给切面提供一个唯一标识。
-  * ref：引用配置好的通知类 bean 的 id。  
+作用：用于配置切面。
+
+属性：
+* id：给切面提供一个唯一标识。
+* ref：引用配置好的通知类 bean 的 id。  
 
 ```xml
 <aop:aspect id="txAdvice" ref="txManager">
@@ -699,10 +703,11 @@ public class TransactionManager {
 
 `aop:pointcut`
 
-* 作用：用于配置切入点表达式。就是指定对哪些类的哪些方法进行增强。
-* 属性：
-  * expression：用于定义切入点表达式。
-  * id： 用于给切入点表达式提供一个唯一标识
+作用：用于配置切入点表达式。就是指定对哪些类的哪些方法进行增强。
+
+属性：
+* expression：用于定义切入点表达式。
+* id： 用于给切入点表达式提供一个唯一标识
 
 ```xml
 <aop:pointcut expression="execution( public void cn.xyc.service.impl.AccountServiceImpl.transfer(java.lang.String, java.lang.String, java.lang.Float))" id="pt1"/>
@@ -773,8 +778,6 @@ execution(表达式)，表达式语法： `execution([修饰符] 返回值类型
 通常情况下，我们都是对业务层的方法进行增强，所以切入点表达式都是切到业务层实现类，`execution(* cn.xyc.service.impl.*.*(..))`
 
 #### 2.2.4 环绕通知  
-
-配置方式
 
 ```xml
 <aop:config>
@@ -1044,8 +1047,9 @@ public Object transactionAround(ProceedingJoinPoint pjp) {
 
 `@Pointcut`
 
-* 作用：指定切入点表达式
-  属性：value：指定表达式的内容  
+作用：指定切入点表达式
+
+属性：value：指定表达式的内容  
 
 ```java
 @Pointcut("execution(* cn.xyc.service.impl.*.*(..))")

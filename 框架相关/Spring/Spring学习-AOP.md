@@ -54,6 +54,7 @@ public class MockAopBeanPostProcessor implements BeanPostProcessor, ApplicationC
         }
         return bean;
     }
+    
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
@@ -106,6 +107,7 @@ public interface UserService {
     void show1();
     void show2();
 }
+
 public class UserServiceImpl implements UserService {
     public void show1() {
         System.out.println("show1...");
@@ -456,7 +458,7 @@ public Object postProcessAfterInitialization(@Nullable Object bean, String beanN
 
 ![xml方式AOP原理剖析-3](image/xml方式AOP原理剖析-3.jpg)
 
-动态代理的实现的选择，在调用getProxy()方法时，我们可选用的AopProxy接口有两个实现类，如上图，这两种都是动态生成代理对象的方式，一种就是基于JDK的，一种是基于Cglib的
+动态代理的实现的选择，在调用`getProxy()`方法时，我们可选用的AopProxy接口有两个实现类，如上图，这两种都是动态生成代理对象的方式，一种就是基于JDK的，一种是基于Cglib的
 
 ![xml方式AOP原理剖析-4](image/xml方式AOP原理剖析-4.jpg)
 
@@ -772,7 +774,7 @@ Hibernate作为持久层框架时，使用的平台事务管理器是HibernateTr
 </tx:attributes>
 ```
 
-其中，name属性名称指定哪个方法要进行哪些事务的属性配置，此处需要区分的是切点表达式指定的方法与此处指定的方法的区别？切点表达式，是过滤哪些方法可以进行事务增强；事务属性信息的name，是指定哪个方法要进行哪些事务属性的配置
+其中，name属性名称指定哪个方法要进行哪些事务的属性配置，**此处需要区分的是切点表达式指定的方法与此处指定的方法的区别？**切点表达式，是过滤哪些方法可以进行事务增强；事务属性信息的name，是指定哪个方法要进行哪些事务属性的配置
 
 ![基于xml声明式事务控制-2](image/基于xml声明式事务控制-2.jpg)
 

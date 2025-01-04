@@ -6,8 +6,6 @@
 
 ## 1. Spring 概述
 
-### 1.1 spring 概述
-
 Spring 是分层的 Java SE/EE 应用 full-stack 轻量级开源框架，以 IoC（Inverse Of Control：反转控制）和 AOP（Aspect Oriented Programming：面向切面编程）为内核，提供了展现层 Spring MVC 和持久层 Spring JDBC 以及业务层事务管理等众多的企业级应用技术，还能整合开源世界众多著名的第三方框架和类库，逐渐成为使用最多的 Java EE 企业应用开源框架。
 
 **Spring 的发展历程**
@@ -133,7 +131,7 @@ public class JdbcDemo1 {
 
 那么，这个读取配置文件， 创建和获取三层对象的类就是工厂。
 
-#### 2.1.4 控制反转-Inversion Of Control
+### 2.2 控制反转-Inversion Of Control
 
 上一小节解耦的思路有 2 个问题：
 
@@ -167,21 +165,21 @@ public class JdbcDemo1 {
 
 > 被动创建对象
 >
-> 1. 在resources资源文件夹下创建bean.properties文件，内容：
+> 在resources资源文件夹下创建bean.properties文件，内容：
 >
->    ```properties
->    accountService = cn.xyc.service.impl.AccountServiceImpl
->    accountDao = cn.xyc.dao.impl.AccountDaoImpl
->    ```
+> ```properties
+> accountService = cn.xyc.service.impl.AccountServiceImpl
+> accountDao = cn.xyc.dao.impl.AccountDaoImpl
+> ```
 >
-> 2. 通过工厂对象来获取所需对象
+> 通过工厂对象来获取所需对象
 >
->    ```java
->    AccountDao accountDao = (AccountDao) BeanFactory.getBean("accountDao");
->    AccountService as = (AccountService) BeanFactory.getBean("accountService");
->    ```
+> ```java
+> AccountDao accountDao = (AccountDao) BeanFactory.getBean("accountDao");
+> AccountService as = (AccountService) BeanFactory.getBean("accountService");
+> ```
 >
-> 3. 工厂
+> 工厂
 >
 > ```java
 > /**
@@ -253,7 +251,6 @@ public class JdbcDemo1 {
 >         return bean;
 >     }*/
 > }
-> 
 > ```
 
 ## 3. Spring的IOC解决程序耦合  
@@ -320,7 +317,7 @@ public class AccountDaoImpl implements IAccountDao {
 
 **第二步：在类的根路径下（resources下）创建一个任意名称的 xml 文件（这里创建了bean.xml）**  
 
-* 给配置文件导入约束：
+给配置文件导入约束：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -386,7 +383,7 @@ public class Client {
 
 * ClassPathXmlApplicationContext：它是从类的根路径下加载配置文件，推荐使用这种
 * FileSystemXmlApplicationContext：它是从磁盘路径上加载配置文件，配置文件可以在磁盘的任意位置。
-* AnnotationConfigApplicationContext：当我们使用注解配置容器对象时，需要使用此类来创建 spring 容器。它用来读取注解。
+* AnnotationConfigApplicationContext：当我们使用注解配置容器对象时，需要使用此类来创建 spring 容器，它用来读取注解。
 
 #### 3.3.2 IOC中bean标签和管理对象细节
 
@@ -398,14 +395,14 @@ public class Client {
 
 * 属性：
 
-  * id： 给对象在容器中提供一个唯一标识。用于获取对象。
-  * class： 指定类的全限定类名。用于反射创建对象。默认情况下调用无参构造函数。
+  * id： 给对象在容器中提供一个唯一标识，用于获取对象。
+  * class： 指定类的全限定类名，用于反射创建对象，默认情况下调用无参构造函数。
   * scope： 指定对象的作用范围
     * **singleton :默认值，单例的**
     * **prototype :多例的**
     * request：WEB 项目中，Spring 创建一个 Bean 的对象，将对象存入到 request 域中
     * session：WEB 项目中，Spring 创建一个 Bean 的对象，将对象存入到 session 域中
-    * global session：WEB 项目中，应用在 Portlet 环境。如果没有 Portlet 环境那么global session相当于 session.
+    * global session：WEB 项目中，应用在 Portlet 环境，如果没有 Portlet 环境那么global session相当于 session.
 
 * init-method： 指定类中的初始化方法名称。
 * destroy-method： 指定类中销毁方法名称。
@@ -414,7 +411,7 @@ public class Client {
 
 * 单例对象： `scope="singleton"`
 
-  一个应用只有一个对象的实例。它的作用范围就是整个引用。
+  一个应用只有一个对象的实例，它的作用范围就是整个引用。
 
   生命周期：
 
@@ -434,14 +431,14 @@ public class Client {
 
 **实例化 Bean 的三种方式**
 
-* 第一种方式：使用默认无参构造函数
+第一种方式：使用默认无参构造函数
 
 ```xml
 <!--在默认情况下：它会根据默认无参构造函数来创建类对象。如果 bean 中没有默认无参构造函数，将会创建失败。-->
 <bean id="accountService" class="cn.xyc.service.impl.AccountServiceImpl"/>
 ```
 
-* 第二种方式： spring管理静态工厂，使用静态工厂的方法创建对象  
+第二种方式： spring管理静态工厂，使用静态工厂的方法创建对象  
 
 ```java
 // 模拟一个静态工厂，创建业务层实现类
@@ -465,7 +462,7 @@ public class StaticFactory {
       factory-method="createAccountService"></bean>
 ```
 
-* 第三种方式： spring 管理实例工厂，使用实例工厂的方法创建对象  
+第三种方式： spring 管理实例工厂，使用实例工厂的方法创建对象  
 
 ```java
 /**
@@ -500,7 +497,7 @@ public class InstanceFactory {
 
 **依赖注入的概念**
 
-依赖注入：Dependency Injection。 它是 spring 框架核心 ioc 的具体实现。
+依赖注入：Dependency Injection。 它是 spring 框架核心 IOC 的具体实现。
 
 当程序在编写时，通过控制反转，把对象的创建交给了 spring，但是代码中不可能出现没有依赖的情况。
 
@@ -527,6 +524,7 @@ public class AccountServiceImpl implements IAccountService {
         this.age = age;
         this.birthday = birthday;
     }
+    
     @Override
     public void saveAccount() {
         System.out.println(name+","+age+","+birthday);
@@ -566,21 +564,12 @@ public class AccountServiceImpl implements IAccountService {
 **set 方法注入**：顾名思义，就是在类中提供需要注入成员的 set 方法。具体代码如下：  
 
 ```java
+@Data
 public class AccountServiceImpl implements IAccountService {
     
     private String name;
     private Integer age;
     private Date birthday;
-    
-    public void setName(String name) {
-        this.name = name;
-    }
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-    public void setBirthday(Date birthday) {
-        this.birthday = birthday;
-    }
     
     @Override
     public void saveAccount() {
@@ -616,21 +605,13 @@ public class AccountServiceImpl implements IAccountService {
 **使用 p 名称空间注入数据（本质还是调用 set 方法）**：  此种方式是通过在 xml 中导入 p 名称空间，使用 p:propertyName 来注入数据，它的本质仍然是调用类中的 set 方法实现注入功能。
 
 ```java
+@Data
 public class AccountServiceImpl4 implements IAccountService {
     
     private String name;
     private Integer age;
     private Date birthday;
     
-    public void setName(String name) {
-        this.name = name;
-    }
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-    public void setBirthday(Date birthday) {
-        this.birthday = birthday;
-    }
     @Override
     public void saveAccount() {
         System.out.println(name+","+age+","+birthday);
@@ -655,13 +636,14 @@ public class AccountServiceImpl4 implements IAccountService {
 </beans>
 ```
 
-##### 3.3.3.5 注入集合属性
+##### 3.3.3.4 注入集合属性
 
 **注入集合属性**：顾名思义，就是给类中的集合成员传值，它用的也是set方法注入的方式，只不过变量的数据类型都是集合。
 
 这里介绍注入数组：List,Set,Map,Properties。具体代码如下：  
 
 ```java
+@Data
 public class AccountServiceImpl implements IAccountService {
     
     private String[] myStrs;
@@ -669,22 +651,6 @@ public class AccountServiceImpl implements IAccountService {
     private Set<String> mySet;
     private Map<String,String> myMap;
     private Properties myProps;
-    
-    public void setMyStrs(String[] myStrs) {
-        this.myStrs = myStrs;
-    }
-    public void setMyList(List<String> myList) {
-        this.myList = myList;
-    }
-    public void setMySet(Set<String> mySet) {
-        this.mySet = mySet;
-    }
-    public void setMyMap(Map<String, String> myMap) {
-        this.myMap = myMap;
-    }
-    public void setMyProps(Properties myProps) {
-        this.myProps = myProps;
-    }
     
     @Override
     public void saveAccount() {

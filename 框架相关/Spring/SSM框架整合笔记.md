@@ -280,9 +280,9 @@ public interface IAccountDao {
 </beans>
 ```
 
-**使用注解配置业务层和持久层**  
+**第二步：使用注解配置业务层和持久层**  
 
-* 业务层代码：
+业务层代码：
 
 ```java
 // 账户的业务层实现类
@@ -304,7 +304,7 @@ public class AccountServiceImpl implements IAccountService {
 }
 ```
 
-* 持久层实现类代码：此时不要做任何操作，就输出一句话。目的是测试 spring 框架搭建的结果。
+持久层实现类代码：此时不要做任何操作，就输出一句话。目的是测试 spring 框架搭建的结果。
 
 ```java
 @Repository("accountDao")
