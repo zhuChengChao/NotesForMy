@@ -1,6 +1,6 @@
 # Spring5：学习笔记
 
-[课程地址](https://www.bilibili.com/video/BV1P44y1N7QG)
+[课程地址](https://www.bilibili.com/video/BV1P44y1N7QG?p=32)
 
 ## AOP
 

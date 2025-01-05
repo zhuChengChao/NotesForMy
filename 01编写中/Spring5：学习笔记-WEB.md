@@ -1,9 +1,6 @@
 # Spring5：学习笔记
 
-> 最为应用的依赖容器Spring在工作中可谓用的十分频繁，之前学的很浅，最近有空就抽个周末的时间每天学习一点点，一下是原学习视频地址链接及代码链接：
->
-> * [学习视频地址](https://www.bilibili.com/video/BV1P44y1N7QG)
-> * [代码地址]()
+[课程地址](https://www.bilibili.com/video/BV1P44y1N7QG?p=64)
 
 ## WEB
 
@@ -40,6 +37,7 @@ public class A20 {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/test4");
         request.setParameter("name", "张三");
         request.addHeader("token", "某个令牌");
+        
         HandlerExecutionChain chain = handlerMapping.getHandler(request);
         System.out.println(chain);
         System.out.println(">>>>>>>>>>>>>>>>>>>>>");
@@ -180,11 +178,24 @@ public class Controller1 {
 
 2）在初始化时会从 Spring 容器中找一些 Web 需要的组件, 如 HandlerMapping、HandlerAdapter 等，并逐一调用它们的初始化
 
-3）RequestMappingHandlerMapping 初始化时，会收集所有 @RequestMapping 映射信息，封装为 Map，其中
+3）RequestMappingHandlerMapping 初始化时，会收集所有 @RequestMapping 映射信息，封装为 Map，其中 `Map<RequestMappingInfo, HandlerMethod>`
 
 * key 是 RequestMappingInfo 类型，包括请求路径、请求方法等信息
 * value 是 HandlerMethod 类型，包括控制器方法对象、控制器对象
 * 有了这个 Map，就可以在请求到达时，快速完成映射，找到 HandlerMethod 并与匹配的拦截器一起返回给 DispatcherServlet
+
+> ```
+> 见上方：Map<RequestMappingInfo, HandlerMethod> handlerMethods = handlerMapping.getHandlerMethods();
+> 
+> // 输出
+> {POST [/test2]}=cn.xyc.a20.Controller1#test2(String)
+> {GET [/test1]}=cn.xyc.a20.Controller1#test1()
+> { [/test4]}=cn.xyc.a20.Controller1#test4()
+> {PUT [/test3]}=cn.xyc.a20.Controller1#test3(String)
+> 
+> // HandlerExecutionChain chain = handlerMapping.getHandler(request);
+> HandlerExecutionChain with [cn.xyc.a20.Controller1#test4()] and 0 interceptors
+> ```
 
 3）RequestMappingHandlerAdapter 初始化时，会准备 HandlerMethod 调用时需要的各个组件，如：
 
@@ -196,13 +207,6 @@ public class Controller1 {
 **参数解析器**
 
 ```java
-package cn.xyc.a20;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
  * 例如经常需要用到请求头中的 token 信息, 用下面注解来标注由哪个参数来获取它
  * token=令牌
@@ -214,14 +218,6 @@ import java.lang.annotation.Target;
 public @interface Token {
 }
 
-package cn.xyc.a20;
-
-import org.springframework.core.MethodParameter;
-import org.springframework.web.bind.support.WebDataBinderFactory;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.method.support.ModelAndViewContainer;
-
 /**
  * @author xiaochao
  * @date 2024/11/17 15:20
@@ -229,6 +225,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 public class TokenArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
+        // 判断是否有注解
         Token token = parameter.getParameterAnnotation(Token.class);
         return token != null;
     }
@@ -244,13 +241,6 @@ public class TokenArgumentResolver implements HandlerMethodArgumentResolver {
 **返回值处理器**
 
 ```java
-package cn.xyc.a20;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
  * @author xiaochao
  * @date 2024/11/17 15:26
@@ -259,16 +249,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Yml {
 }
-
-package cn.xyc.a20;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.core.MethodParameter;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
-import org.springframework.web.method.support.ModelAndViewContainer;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * @author xiaochao
@@ -325,6 +305,7 @@ public class A21 {
     public static void main(String[] args) throws Exception {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(WebConfig.class);
         ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
+        
         // 准备测试 Request
         HttpServletRequest request = mockRequest();
 
@@ -485,7 +466,7 @@ public class A21 {
 
 组合模式在 Spring 中的体现
 
-@RequestParam， @CookieValue 等注解中的参数名、默认值，都可以写成活的，即从 ${ } #{ }中获取
+> @RequestParam， @CookieValue 等注解中的参数名、默认值，都可以写成活的，即从 ${ } #{ }中获取
 
 ### 22. 参数名解析
 
@@ -821,12 +802,6 @@ ServletRequestDataBinder 为 bean 的属性执行绑定，当需要时做类型�
 **SimpleTypeConverter用法**
 
 ```java
-package cn.xyc.a23;
-
-import java.util.Date;
-
-import org.springframework.beans.SimpleTypeConverter;
-
 /**
  * SimpleTypeConverter：仅做类型转换
  *
@@ -849,12 +824,6 @@ public class TestSimpleConverter {
 **BeanWrapperImpl 测试**
 
 ```java
-package cn.xyc.a23;
-
-import java.util.Date;
-
-import org.springframework.beans.BeanWrapperImpl;
-
 /**
  * BeanWrapperImpl 测试：为 bean 的属性赋值，当需要时做类型转换，走 Property
  * @author xiaochao
@@ -893,12 +862,6 @@ public class TestBeanWrapper {
 **测试DirectFieldAccessor**
 
 ```java
-package cn.xyc.a23;
-
-import java.util.Date;
-
-import org.springframework.beans.DirectFieldAccessor;
-
 /**
  * 测试DirectFieldAccessor：为 bean 的属性赋值，当需要时做类型转换，走 Field
  *
@@ -938,13 +901,6 @@ public class TestFieldAccessor {
 **测试DataBinder**
 
 ```java
-package cn.xyc.a23;
-
-import java.util.Date;
-
-import org.springframework.beans.MutablePropertyValues;
-import org.springframework.validation.DataBinder;
-
 /**
  * 测试DataBinder
  *
@@ -986,16 +942,6 @@ public class TestDataBinder {
 **测试web环境下的ServletRequestDataBinder**
 
 ```java
-package cn.xyc.a23;
-
-import java.util.Date;
-
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.web.bind.ServletRequestDataBinder;
-import org.springframework.web.bind.ServletRequestParameterPropertyValues;
-
-import lombok.Data;
-
 /**
  * 测试web环境下的ServletRequestDataBinder：为 bean 的属性执行绑定，当需要时做类型转换，根据 directFieldAccess 选择走 Property 还是 Field，具备校验与获取校验结果功能
  *
@@ -1036,12 +982,7 @@ public class TestServletDataBinder {
 }
 ```
 
-**收获**：基本的类型转换与数据绑定用法
-
-* SimpleTypeConverter
-* BeanWrapperImpl
-* DirectFieldAccessor
-* ServletRequestDataBinder
+**收获**：基本的类型转换与数据绑定用法：SimpleTypeConverter、BeanWrapperImpl、DirectFieldAccessor、ServletRequestDataBinder
 
 #### 数据绑定工厂
 
@@ -1371,6 +1312,20 @@ public class WebConfig {
         }
     }
 }
+```
+
+**输出**
+
+```
+[DEBUG] 14:57:54.545 [main] cn.xyc.a24.A24 - 1. 刚开始... 
+[DEBUG] 14:57:54.556 [main] cn.xyc.a24.A24 - 全局的 @InitBinder 方法 [binder3] 
+[DEBUG] 14:57:54.558 [main] cn.xyc.a24.A24 - 控制器的 @InitBinder 方法 [] 
+[DEBUG] 14:57:54.560 [main] cn.xyc.a24.A24 - 2. 模拟调用 Controller1 的 foo 方法时 ... 
+[DEBUG] 14:57:54.570 [main] cn.xyc.a24.A24 - 全局的 @InitBinder 方法 [binder3] 
+[DEBUG] 14:57:54.572 [main] cn.xyc.a24.A24 - 控制器的 @InitBinder 方法 [Controller1.binder1] 
+[DEBUG] 14:57:54.572 [main] cn.xyc.a24.A24 - 3. 模拟调用 Controller2 的 bar 方法时 ... 
+[DEBUG] 14:57:54.572 [main] cn.xyc.a24.A24 - 全局的 @InitBinder 方法 [binder3] 
+[DEBUG] 14:57:54.572 [main] cn.xyc.a24.A24 - 控制器的 @InitBinder 方法 [Controller2.binder22, Controller2.binder21, Controller1.binder1] 
 ```
 
 **收获**
@@ -2941,7 +2896,7 @@ public ResourceHttpRequestHandler handler1() {
 
 #### 欢迎页
 
-##### 关键代码
+**关键代码**
 
 ```java
 @Bean

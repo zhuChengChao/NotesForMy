@@ -124,7 +124,7 @@ public class AccountServlet extends HttpServlet {
 
 ### Spring的web开发组件spring-web
 
-到此，就将一开始的诉求都解决了，当然我们能想到的Spring 框架自然也会想到，Spring其实已经为我们定义好了一个ContextLoaderListener，使用方式跟我们上面自己定义的大体一样，但是功能要比我们强百倍，所以，遵循Spring "拿来主义" 的精神，我们直接使用Spring提供的就可以了，开发如下：
+到此，就将一开始的诉求都解决了，当然我们能想到的Spring框架自然也会想到，Spring其实已经为我们定义好了一个ContextLoaderListener，使用方式跟我们上面自己定义的大体一样，但是功能要比我们强百倍，所以，遵循Spring "拿来主义" 的精神，我们直接使用Spring提供的就可以了，开发如下：
 
 先导入Spring-web的坐标：
 
