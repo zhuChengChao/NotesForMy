@@ -1,0 +1,146 @@
+<mxfile host="Electron" modified="2024-12-21T08:02:21.161Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.8 Chrome/114.0.5735.289 Electron/25.5.0 Safari/537.36" etag="4PG8Ng8y_FkV8KZeGAcj" version="21.6.8" type="device">
+  <diagram name="第 1 页" id="KhqhfUsEfAkaO-4wcrky">
+    <mxGraphModel dx="1290" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-11" value="web-gaea（服务使用）" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="300" width="200" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-19" value="项目文件接口" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="ISaf9OjndRdZ_PTJXMPq-11">
+          <mxGeometry x="40" y="50" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-12" value="web-poseidon（服务提供）" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="90" y="40" width="200" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="ISaf9OjndRdZ_PTJXMPq-12" source="ISaf9OjndRdZ_PTJXMPq-5">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-40" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-30" value="dubbo接口注册" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ISaf9OjndRdZ_PTJXMPq-29">
+          <mxGeometry x="0.5514" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-5" value="获取项目文件接口实现" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="ISaf9OjndRdZ_PTJXMPq-12">
+          <mxGeometry x="25" y="130" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-3" value="项目文件接口jar包" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="ISaf9OjndRdZ_PTJXMPq-12">
+          <mxGeometry x="40" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-7" value="" style="endArrow=block;dashed=1;endFill=0;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="ISaf9OjndRdZ_PTJXMPq-12" source="ISaf9OjndRdZ_PTJXMPq-5" target="ISaf9OjndRdZ_PTJXMPq-3">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="-95" y="200" as="sourcePoint" />
+            <mxPoint x="65" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-20" value="web-zeus（服务提供）" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="40" width="200" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-31" value="dubbo接口注册" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="ISaf9OjndRdZ_PTJXMPq-20" source="ISaf9OjndRdZ_PTJXMPq-21">
+          <mxGeometry x="0.5752" y="10" relative="1" as="geometry">
+            <mxPoint x="-10" y="220" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-21" value="获取项目文件接口实现" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="ISaf9OjndRdZ_PTJXMPq-20">
+          <mxGeometry x="25" y="130" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-22" value="项目文件接口jar包" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="ISaf9OjndRdZ_PTJXMPq-20">
+          <mxGeometry x="40" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-23" value="" style="endArrow=block;dashed=1;endFill=0;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="ISaf9OjndRdZ_PTJXMPq-20" source="ISaf9OjndRdZ_PTJXMPq-21" target="ISaf9OjndRdZ_PTJXMPq-22">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="-95" y="200" as="sourcePoint" />
+            <mxPoint x="65" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="ISaf9OjndRdZ_PTJXMPq-19" target="ISaf9OjndRdZ_PTJXMPq-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-27" value="dubbo路由机制调用" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ISaf9OjndRdZ_PTJXMPq-25">
+          <mxGeometry x="0.5246" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="ISaf9OjndRdZ_PTJXMPq-19" target="ISaf9OjndRdZ_PTJXMPq-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-28" value="调用" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ISaf9OjndRdZ_PTJXMPq-26">
+          <mxGeometry x="0.5629" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-32" value="agreement（服务使用）" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="760" width="200" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-33" value="项目信息接口" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="ISaf9OjndRdZ_PTJXMPq-32">
+          <mxGeometry x="40" y="50" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-34" value="web-gaea（服务提供）" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="90" y="500" width="200" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="ISaf9OjndRdZ_PTJXMPq-34" source="ISaf9OjndRdZ_PTJXMPq-37">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-40" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-36" value="dubbo接口注册" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ISaf9OjndRdZ_PTJXMPq-35">
+          <mxGeometry x="0.5514" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-37" value="组装项目信息接口实现" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="ISaf9OjndRdZ_PTJXMPq-34">
+          <mxGeometry x="25" y="130" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-38" value="项目信息接口jar包" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="ISaf9OjndRdZ_PTJXMPq-34">
+          <mxGeometry x="40" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-39" value="" style="endArrow=block;dashed=1;endFill=0;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="ISaf9OjndRdZ_PTJXMPq-34" source="ISaf9OjndRdZ_PTJXMPq-37" target="ISaf9OjndRdZ_PTJXMPq-38">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="-95" y="200" as="sourcePoint" />
+            <mxPoint x="65" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-40" value="web-bidding-tiga（服务提供）" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="500" width="200" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-41" value="dubbo接口注册" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="ISaf9OjndRdZ_PTJXMPq-40" source="ISaf9OjndRdZ_PTJXMPq-42">
+          <mxGeometry x="0.5752" y="10" relative="1" as="geometry">
+            <mxPoint x="-10" y="220" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-42" value="组装项目信息接口实现" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="ISaf9OjndRdZ_PTJXMPq-40">
+          <mxGeometry x="25" y="130" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-43" value="项目信息接口jar包" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="ISaf9OjndRdZ_PTJXMPq-40">
+          <mxGeometry x="40" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-44" value="" style="endArrow=block;dashed=1;endFill=0;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="ISaf9OjndRdZ_PTJXMPq-40" source="ISaf9OjndRdZ_PTJXMPq-42" target="ISaf9OjndRdZ_PTJXMPq-43">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="-95" y="200" as="sourcePoint" />
+            <mxPoint x="65" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-45" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="ISaf9OjndRdZ_PTJXMPq-33" target="ISaf9OjndRdZ_PTJXMPq-37">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-46" value="dubbo路由机制调用&lt;br&gt;开放式" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ISaf9OjndRdZ_PTJXMPq-45">
+          <mxGeometry x="0.5246" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="ISaf9OjndRdZ_PTJXMPq-33" target="ISaf9OjndRdZ_PTJXMPq-42">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ISaf9OjndRdZ_PTJXMPq-48" value="封闭式调用" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ISaf9OjndRdZ_PTJXMPq-47">
+          <mxGeometry x="0.5629" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
