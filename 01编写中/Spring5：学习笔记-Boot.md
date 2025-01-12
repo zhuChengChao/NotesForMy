@@ -2,9 +2,9 @@
 
 [课程地址](https://www.bilibili.com/video/BV1P44y1N7QG/?p=120)
 
-## Boot
+## SpringBoot
 
-### 37) Boot 骨架项目
+### 37. Boot 骨架项目
 
 如果是 linux 环境，用以下命令即可获取 spring boot 的骨架 pom.xml
 
@@ -20,19 +20,21 @@ curl -G https://start.spring.io/pom.xml -d dependencies=web,mysql,mybatis -o pom
 curl https://start.spring.io
 ```
 
+### 38. Boot War项目
 
+#### 搭建步骤
 
-### 38) Boot War项目
+**步骤1**：创建模块，区别在于打包方式选择 war
 
-步骤1：创建模块，区别在于打包方式选择 war
-
-<img src="../../业务学习/个人学习/Spring高级49讲/文档/img/image-20211021160145072.png" alt="image-20211021160145072" style="zoom: 50%;" />
+![创建SpringBoot项目-1](image/创建SpringBoot项目-1.jpg)
 
 接下来勾选 Spring Web 支持
 
-<img src="../../业务学习/个人学习/Spring高级49讲/文档/img/image-20211021162416525.png" alt="image-20211021162416525" style="zoom:50%;" />
+![创建SpringBoot项目-2](image/创建SpringBoot项目-2.jpg)
 
-步骤2：编写控制器
+> 上面有只有JDK17版本，创建失败
+
+**步骤2**：编写控制器
 
 ```java
 @Controller
@@ -46,7 +48,7 @@ public class MyController {
 }
 ```
 
-步骤3：编写 jsp 视图，新建 webapp 目录和一个 hello.jsp 文件，注意文件名与控制器方法返回的视图逻辑名一致
+**步骤3**：编写 jsp 视图，新建 webapp 目录和一个 hello.jsp 文件，注意文件名与控制器方法返回的视图逻辑名一致
 
 ```
 src
@@ -57,7 +59,7 @@ src
 			|- hello.jsp
 ```
 
-步骤4：配置视图路径，打开 application.properties 文件
+**步骤4**：配置视图路径，打开 application.properties 文件
 
 ```properties
 spring.mvc.view.prefix=/
@@ -66,13 +68,11 @@ spring.mvc.view.suffix=.jsp
 
 > 将来 prefix + 控制器方法返回值 + suffix 即为视图完整路径
 
-
-
 #### 测试
 
-如果用 mvn 插件 `mvn spring-boot:run` 或 main 方法测试
+**方式1：**如果用 mvn 插件 `mvn spring-boot:run` 或 main 方法测试
 
-* 必须添加如下依赖，因为此时用的还是内嵌 tomcat，而内嵌 tomcat 默认不带 jasper（用来解析 jsp）
+必须添加如下依赖，因为此时用的还是内嵌 tomcat，而内嵌 tomcat 默认不带 jasper（用来解析 jsp）
 
 ```xml
 <dependency>
@@ -82,111 +82,985 @@ spring.mvc.view.suffix=.jsp
 </dependency>
 ```
 
-也可以使用 Idea 配置 tomcat 来测试，此时用的是外置 tomcat
+**方式2：**也可以使用 Idea 配置 tomcat 来测试，此时用的是**外置 tomcat**
 
-* 骨架生成的代码中，多了一个 ServletInitializer，它的作用就是配置外置 Tomcat 使用的，在外置 Tomcat 启动后，去调用它创建和运行 SpringApplication
+骨架生成的代码中，多了一个 ServletInitializer，它的作用就是配置外置 Tomcat 使用的，在外置 Tomcat 启动后，去调用它创建和运行 SpringApplication
 
+> 对于 jar 项目，若要支持 jsp，也可以在加入 jasper 依赖的前提下，把 jsp 文件置入 `META-INF/resources` 
 
+### 39. Boot 启动过程
 
-#### 启示
+#### 阶段一：SpringApplication 构造
 
-对于 jar 项目，若要支持 jsp，也可以在加入 jasper 依赖的前提下，把 jsp 文件置入 `META-INF/resources` 
+```java
+// main方法中执行SpringApplication.run方法，启动SpringBoot程序
+SpringApplication.run(A39_1.class, args);
 
+// 最终调用构造方法，class：org.springframework.boot.SpringApplication
+(new SpringApplication(primarySources)).run(args);
+```
 
+> 源码如下 :
+>
+> ```java
+> public SpringApplication(ResourceLoader resourceLoader, Class<?>... primarySources) {
+>     this.sources = new LinkedHashSet();
+>     this.bannerMode = Mode.CONSOLE;
+>     this.logStartupInfo = true;
+>     this.addCommandLineProperties = true;
+>     this.addConversionService = true;
+>     this.headless = true;
+>     this.registerShutdownHook = true;
+>     this.additionalProfiles = Collections.emptySet();
+>     this.isCustomEnvironment = false;
+>     this.lazyInitialization = false;
+>     this.applicationContextFactory = ApplicationContextFactory.DEFAULT;
+>     this.applicationStartup = ApplicationStartup.DEFAULT;
+>     this.resourceLoader = resourceLoader;
+>     Assert.notNull(primarySources, "PrimarySources must not be null");
+>     this.primarySources = new LinkedHashSet(Arrays.asList(primarySources));
+>     this.webApplicationType = WebApplicationType.deduceFromClasspath();
+>     this.bootstrapRegistryInitializers = this.getBootstrapRegistryInitializersFromSpringFactories();
+>     this.setInitializers(this.getSpringFactoriesInstances(ApplicationContextInitializer.class));
+>     this.setListeners(this.getSpringFactoriesInstances(ApplicationListener.class));
+>     this.mainApplicationClass = this.deduceMainApplicationClass();
+> }
+> ```
 
-### 39) Boot 启动过程
+**构造分析**
 
-阶段一：SpringApplication 构造
+##### 1）记录 BeanDefinition 源
 
-1. 记录 BeanDefinition 源
-2. 推断应用类型
-3. 记录 ApplicationContext 初始化器
-4. 记录监听器
-5. 推断主启动类
+```java
+System.out.println("1. 演示获取 Bean Definition 源");
+SpringApplication spring = new SpringApplication(A39_1.class);
+// 添加BeanDefinition
+spring.setSources(Collections.singleton("classpath:b01.xml"));
 
-阶段二：执行 run 方法
+// 运行Spirng容器
+ConfigurableApplicationContext context = spring.run(args);
 
-1. 得到 SpringApplicationRunListeners，名字取得不好，实际是事件发布器
+for (String name : context.getBeanDefinitionNames()) {
+    System.out.println("beanName: " + name + " 来源：" + context.getBeanFactory().getBeanDefinition(name).getResourceDescription());
+}
+context.close();
 
-   * 发布 application starting 事件1️⃣
+// 关键输出：
+beanName: a39_1 来源：null
+beanName: bean1 来源：class path resource [b01.xml]
+beanName: bean2 来源：cn.xyc.a39.A39_1
+beanName: servletWebServerFactory 来源：cn.xyc.a39.A39_1
+```
 
-2. 封装启动 args
+> cn.xyc.a39.A39_1 中的其他代码
+>
+> ```java
+> static class Bean1 {}
+> 
+> static class Bean2 {}
+> 
+> static class Bean3 {}
+> 
+> @Bean
+> public Bean2 bean2() {
+>     return new Bean2();
+> }
+> 
+> @Bean
+> public TomcatServletWebServerFactory servletWebServerFactory() {
+>     return new TomcatServletWebServerFactory();
+> }
+> ```
+>
+> classpath:b01.xml 文件内容
+>
+> ```xml
+> <?xml version="1.0" encoding="UTF-8"?>
+> <beans xmlns="http://www.springframework.org/schema/beans"
+>        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+> 
+>     <bean id="bean1" class="cn.xyc.a39.A39_1.Bean1"/>
+> 
+> </beans>
+> ```
 
-3. 准备 Environment 添加命令行参数（*）
+##### 2）推断应用类型
 
-4. ConfigurationPropertySources 处理（*）
+```java
+System.out.println("2. 演示推断应用类型");
+Method deduceFromClasspath = WebApplicationType.class.getDeclaredMethod("deduceFromClasspath");
+deduceFromClasspath.setAccessible(true);
+System.out.println("\t应用类型为:"+deduceFromClasspath.invoke(null));
+// 输出：
+// 2. 演示推断应用类型
+//	应用类型为:SERVLET
+```
 
-   * 发布 application environment 已准备事件2️⃣
+> 源码如下：
+>
+> ```java
+> this.webApplicationType = WebApplicationType.deduceFromClasspath();
+> 
+> // 方法：WebApplicationType.deduceFromClasspath();
+> static WebApplicationType deduceFromClasspath() {
+>     if (ClassUtils.isPresent("org.springframework.web.reactive.DispatcherHandler", (ClassLoader)null) && !ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet", (ClassLoader)null) && !ClassUtils.isPresent("org.glassfish.jersey.servlet.ServletContainer", (ClassLoader)null)) {
+>         // 类型1：
+>         return REACTIVE;
+>     } else {
+>         String[] var0 = SERVLET_INDICATOR_CLASSES;
+>         int var1 = var0.length;
+> 
+>         for(int var2 = 0; var2 < var1; ++var2) {
+>             String className = var0[var2];
+>             if (!ClassUtils.isPresent(className, (ClassLoader)null)) {
+>                 // 类型2
+>                 return NONE;
+>             }
+>         }
+> 
+>         // 类型3
+>         return SERVLET;
+>     }
+> }
+> ```
 
-5. 通过 EnvironmentPostProcessorApplicationListener 进行 env 后处理（*）
-   * application.properties，由 StandardConfigDataLocationResolver 解析
-   * spring.application.json
+##### 3）记录 ApplicationContext 初始化器
 
-6. 绑定 spring.main 到 SpringApplication 对象（*）
+```java
+System.out.println("3. 演示 ApplicationContext 初始化器");
+spring.addInitializers(new ApplicationContextInitializer() {
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+        // applicationContext 刚刚创建还没有初始化完成的
+        if (applicationContext instanceof GenericApplicationContext) {
+            GenericApplicationContext gac = (GenericApplicationContext) applicationContext;
+            gac.registerBean("bean3", Bean3.class);
+            // 注册bean3对象，后续会被输出
+        }
+    }
+});
 
-7. 打印 banner（*）
+ConfigurableApplicationContext context = spring.run(args);
+// 1.run方法内部会创建 ApplicationContext
+// 1-2之间处理：调用初始化器 对 ApplicationContext 做扩展
+// 2.ApplicationContext.refresh，让ApplicationContext初始化完成
+```
 
-8. 创建容器
+> 源码如下，从配置文件中读取进行初始化操作
+>
+> ```java
+> // private List<ApplicationContextInitializer<?>> initializers;
+> this.setInitializers(this.getSpringFactoriesInstances(ApplicationContextInitializer.class));
+> ```
 
-9. 准备容器
+##### 4）记录监听器
 
-   * 发布 application context 已初始化事件3️⃣
+```java
+System.out.println("4. 演示监听器与事件");
+spring.addListeners(new ApplicationListener<ApplicationEvent>() {
+    @Override
+    public void onApplicationEvent(ApplicationEvent event) {
+        System.out.println("\t事件为:" + event.getClass());
+    }
+});
+// spring.addListeners(event -> System.out.println("\t事件为:" + event.getClass()));
 
-10. 加载 bean 定义
+// 输出：
+事件为:class org.springframework.boot.context.event.ApplicationContextInitializedEvent
+事件为:class org.springframework.boot.context.event.ApplicationPreparedEvent
+事件为:class org.springframework.boot.web.servlet.context.ServletWebServerInitializedEvent
+事件为:class org.springframework.context.event.ContextRefreshedEvent
+事件为:class org.springframework.boot.context.event.ApplicationStartedEvent
+事件为:class org.springframework.boot.availability.AvailabilityChangeEvent
+事件为:class org.springframework.boot.context.event.ApplicationReadyEvent
+事件为:class org.springframework.boot.availability.AvailabilityChangeEvent
+事件为:class org.springframework.boot.availability.AvailabilityChangeEvent
+事件为:class org.springframework.context.event.ContextClosedEvent
+```
 
-    * 发布 application prepared 事件4️⃣
+> 源码如下，从配置文件中读取进行初始化操作
+>
+> ```java
+> // private List<ApplicationListener<?>> listeners;
+> this.setListeners(this.getSpringFactoriesInstances(ApplicationListener.class));
+> ```
 
-11. refresh 容器
+##### 5）推断主启动类
 
-    * 发布 application started 事件5️⃣
+```java
+System.out.println("5. 演示主类推断");
+Method deduceMainApplicationClass = SpringApplication.class.getDeclaredMethod("deduceMainApplicationClass");
+deduceMainApplicationClass.setAccessible(true);
+System.out.println("\t主类是："+deduceMainApplicationClass.invoke(spring));
 
-12. 执行 runner
+// 输出
+5. 演示主类推断
+	主类是：class cn.xyc.a39.A39_1
+```
 
-    * 发布 application ready 事件6️⃣
+> ```java
+> // 见源码：
+> this.mainApplicationClass = this.deduceMainApplicationClass();
+> ```
 
-    * 这其中有异常，发布 application failed 事件7️⃣
+#### 阶段二：执行 run 方法
 
-> 带 * 的有独立的示例
+`org.springframework.boot.SpringApplication#run(java.lang.String...)`
 
-#### 演示 - 启动过程
+##### 1）创建事件发布器
 
-**com.itheima.a39.A39_1** 对应 SpringApplication 构造
+**得到 SpringApplicationRunListeners，名字取得不好，实际是事件发布器**，这里总共会发布7个事件
 
-**com.itheima.a39.A39_2** 对应第1步，并演示 7 个事件
+> 发布 application starting 事件1️⃣
+>
+> 对应源码：
+>
+> ```java
+> SpringApplicationRunListeners listeners = this.getRunListeners(args);
+> // 发布 application starting 事件1️⃣
+> listeners.starting(bootstrapContext, this.mainApplicationClass);
+> ```
 
-**com.itheima.a39.A39_3** 对应第2、8到12步
+```java
+public class A39_2 {
+    public static void main(String[] args) throws Exception{
 
-**org.springframework.boot.Step3**
+        // 添加 app 监听器
+        SpringApplication app = new SpringApplication();
+        app.addListeners(e -> System.out.println("监听事件：" + e.getClass()));
 
-**org.springframework.boot.Step4**
+        // 获取事件发送器实现类名
+        List<String> names = SpringFactoriesLoader.loadFactoryNames(SpringApplicationRunListener.class, A39_2.class.getClassLoader());
+        for (String name : names) {
+            System.out.println("事件发送器实现类名:" + name);
+            Class<?> clazz = Class.forName(name);
+            Constructor<?> constructor = clazz.getConstructor(SpringApplication.class, String[].class);
+            SpringApplicationRunListener publisher = (SpringApplicationRunListener) constructor.newInstance(app, args);
 
-**org.springframework.boot.Step5**
+            DefaultBootstrapContext bootstrapContext = new DefaultBootstrapContext();
+            GenericApplicationContext context = new GenericApplicationContext();
+            // 发布以下事件
+            // 发布 spring boot 开始启动事件
+            publisher.starting(bootstrapContext);
+            // 发布环境信息准备完毕事件
+            publisher.environmentPrepared(bootstrapContext, new StandardEnvironment());
+            // 在 spring 容器创建，并调用初始化器之后，发送此事件
+            publisher.contextPrepared(context);
+            // 所有 bean definition 加载完毕后，发送此事件
+            publisher.contextLoaded(context);
+            context.refresh();
+            // spring 容器初始化完成(refresh 方法调用完毕)，发布事件
+            publisher.started(context);
+            // 发布 spring boot 启动完毕事件
+            publisher.running(context);
+            // spring boot 启动出错，发送事件
+            publisher.failed(context, new Exception("出错了"));
+        }
 
-**org.springframework.boot.Step6**
+        /*
+            学到了什么
+            a. 如何读取 spring.factories 中的配置
+            b. run 方法内获取事件发布器 (得到 SpringApplicationRunListeners) 的过程, 对应步骤中
+                1.获取事件发布器
+                发布 application starting 事件1️⃣
+                发布 application environment 已准备事件2️⃣
+                发布 application context 已初始化事件3️⃣
+                发布 application prepared 事件4️⃣
+                发布 application started 事件5️⃣
+                发布 application ready 事件6️⃣
+                这其中有异常，发布 application failed 事件7️⃣
+         */
+    }
+}
 
-**org.springframework.boot.Step7**
+// 输出如下：关注boot.context.event.xxx
+监听事件：class org.springframework.boot.context.event.ApplicationStartingEvent
+监听事件：class org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent
+监听事件：class org.springframework.boot.context.event.ApplicationContextInitializedEvent
+监听事件：class org.springframework.boot.context.event.ApplicationPreparedEvent
+监听事件：class org.springframework.context.event.ContextRefreshedEvent
+监听事件：class org.springframework.boot.context.event.ApplicationStartedEvent
+监听事件：class org.springframework.boot.availability.AvailabilityChangeEvent
+监听事件：class org.springframework.boot.context.event.ApplicationReadyEvent
+监听事件：class org.springframework.boot.availability.AvailabilityChangeEvent
+监听事件：class org.springframework.boot.context.event.ApplicationFailedEvent
+```
 
-#### 收获💡
+> Spring事件发布器：org.springframework.boot.SpringApplicationRunListener
+>
+> 对应实现：org.springframework.boot.context.event.EventPublishingRunListener
+>
+> springboot的配置文件中
+>
+> ```properties
+> # Run Listeners
+> org.springframework.boot.SpringApplicationRunListener=\
+> org.springframework.boot.context.event.EventPublishingRunListener
+> ```
 
-1. SpringApplication 构造方法中所做的操作
-   * 可以有多种源用来加载 bean 定义
-   * 应用类型推断
-   * 添加容器初始化器
-   * 添加监听器
-   * 演示主类推断
-2. 如何读取 spring.factories 中的配置
-3. 从配置中获取重要的事件发布器：SpringApplicationRunListeners
-4. 容器的创建、初始化器增强、加载 bean 定义等
-5. CommandLineRunner、ApplicationRunner 的作用
-6. 环境对象
+##### 2）封装启动 args
+
+> 对应源码
+>
+> ```java
+> ApplicationArguments applicationArguments = new DefaultApplicationArguments(args);
+> ```
+
+```java
+System.out.println(">>>>>>>>>>>>>>>>>>>>>>>> 2. 封装启动 args");
+// 在12）中被使用
+DefaultApplicationArguments arguments = new DefaultApplicationArguments(args);
+```
+
+##### 3）准备 Environment 添加命令行参数（*）
+
+> 对应源码
+>
+> ```java
+> ConfigurableEnvironment environment = this.prepareEnvironment(listeners, bootstrapContext, applicationArguments);
+> 
+> // 方法org.springframework.boot.SpringApplication#prepareEnvironment
+> ConfigurableEnvironment environment = this.getOrCreateEnvironment();
+> // 添加命令行参数 applicationArguments.getSourceArgs()
+> this.configureEnvironment((ConfigurableEnvironment)environment, applicationArguments.getSourceArgs());
+> ```
+
+```java
+package org.springframework.boot;
+
+import java.io.IOException;
+
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.SimpleCommandLinePropertySource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.ResourcePropertySource;
+
+/**
+ * @author xiaochao
+ * @date 2025/1/11 19:03
+ */
+public class Step3 {
+    public static void main(String[] args) throws IOException {
+        // 环境对象，对配置信息的抽象，比如：系统环境变量, properties, yaml
+        ApplicationEnvironment env = new ApplicationEnvironment();
+        // 解析配置文件添加属性（注意在 3）中是没有添加的）
+        env.getPropertySources().addLast(new ResourcePropertySource(new ClassPathResource("application.properties")));
+        // 从命令行中添加属性
+        env.getPropertySources().addFirst(new SimpleCommandLinePropertySource(args));
+        for (PropertySource<?> ps : env.getPropertySources()) {
+            System.out.println(ps);
+            // 输出结果：
+            // 来源1：系统属性 PropertiesPropertySource {name='systemProperties'}
+            // 来源2：系统环境变量 SystemEnvironmentPropertySource {name='systemEnvironment'}
+        }
+        // 有优先级，systemProperties > systemEnvironment
+        System.out.println(env.getProperty("JAVA_HOME"));
+        // 默认输出：/Library/Java/JavaVirtualMachines/jdk1.8.0_311.jdk/Contents/Home
+        // 如果在运行时新增参数 -DJAVA_HOME=abc，则会输出 abc 了
+
+        // 通过env.getPropertySources().addXXXX()，可以添加自定义的 PropertySource
+        System.out.println(env.getProperty("server.port"));
+    }
+}
+```
+
+> 注意上述类的路径
+
+##### 4）ConfigurationPropertySources 处理（*）
+
+> 发布 application environment 已准备事件2️⃣
+>
+> 对应源码：
+>
+> ```java
+> // 接着方法prepareEnvironment
+> ConfigurationPropertySources.attach((Environment)environment);
+> // 发布 application environment 已准备事件2️⃣
+> listeners.environmentPrepared(bootstrapContext, (ConfigurableEnvironment)environment);
+> 
+> // 方法ConfigurationPropertySources.attach(env);
+> public static void attach(Environment environment) {
+>     Assert.isInstanceOf(ConfigurableEnvironment.class, environment);
+>     MutablePropertySources sources = ((ConfigurableEnvironment)environment).getPropertySources();
+>     PropertySource<?> attached = getAttached(sources);
+>     if (attached != null && attached.getSource() != sources) {
+>         sources.remove("configurationProperties");
+>         attached = null;
+>     }
+> 
+>     if (attached == null) {
+>         // 加了SpringConfigurationPropertySources
+>         sources.addFirst(new ConfigurationPropertySourcesPropertySource("configurationProperties", new SpringConfigurationPropertySources(sources)));
+>     }
+> }
+> ```
+
+```java
+package org.springframework.boot;
+
+import java.io.IOException;
+
+import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.ResourcePropertySource;
+
+/**
+ * @author xiaochao
+ * @date 2025/1/11 19:03
+ */
+public class Step4 {
+
+    public static void main(String[] args) throws IOException, NoSuchFieldException {
+        ApplicationEnvironment env = new ApplicationEnvironment();
+        env.getPropertySources().addLast(
+            new ResourcePropertySource("step4", new ClassPathResource("step4.properties"))
+        );
+        // 4）ConfigurationPropertySources 处理（*）
+        ConfigurationPropertySources.attach(env);
+        // 执行完成后：ConfigurationPropertySourcesPropertySource {name='configurationProperties'}
+        // 名称不一样也可以进行解析了，如果不加的话，名称对不上的话是无法解析的
+        for (PropertySource<?> ps : env.getPropertySources()) {
+            System.out.println(ps);
+        }
+
+        // user.first-name=George
+        System.out.println(env.getProperty("user.first-name"));
+        // user.middle_name=Walker
+        System.out.println(env.getProperty("user.middle-name"));
+        // user.lastName=Bush
+        System.out.println(env.getProperty("user.last-name"));
+    }
+}
+```
+
+##### 5）EnvironmentPostProcessor处理（*）
+
+> 对应源码
+>
+> ```java
+> // Environment已经准备好了，发布 application environment 已准备事件
+> listeners.environmentPrepared(bootstrapContext, (ConfigurableEnvironment)environment);
+> // 监听这个事件，进行EnvironmentPostProcessor
+> ```
+
+通过 EnvironmentPostProcessor（通过EnvironmentPostProcessorApplicationListener实现） 进行 env 后处理（*）
+
+> application.properties，由 StandardConfigDataLocationResolver 解析
+>
+> 这里才真正解析了application.properties
+
+```java
+SpringApplication app = new SpringApplication();
+ApplicationEnvironment env = new ApplicationEnvironment();
+
+System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 增强前");
+for (PropertySource<?> ps : env.getPropertySources()) {
+    System.out.println(ps);
+}
+
+ConfigDataEnvironmentPostProcessor postProcessor1 =
+    new ConfigDataEnvironmentPostProcessor(new DeferredLogs(), new DefaultBootstrapContext());
+postProcessor1.postProcessEnvironment(env, app);
+System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 增强后");
+for (PropertySource<?> ps : env.getPropertySources()) {
+    System.out.println(ps);
+}
+// 对比增强前，多了：
+// OriginTrackedMapPropertySource {name='Config resource 'class path resource [application.properties]' via location 'optional:classpath:/''}
+
+RandomValuePropertySourceEnvironmentPostProcessor postProcessor2 =
+    new RandomValuePropertySourceEnvironmentPostProcessor(new DeferredLog());
+postProcessor2.postProcessEnvironment(env, app);
+System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 增强后");
+for (PropertySource<?> ps : env.getPropertySources()) {
+    System.out.println(ps);
+}
+// 对比增强前，多了：
+// RandomValuePropertySource {name='random'}
+
+System.out.println(env.getProperty("server.port"));
+System.out.println(env.getProperty("random.int"));
+System.out.println(env.getProperty("random.int"));
+System.out.println(env.getProperty("random.int"));
+System.out.println(env.getProperty("random.uuid"));
+System.out.println(env.getProperty("random.uuid"));
+System.out.println(env.getProperty("random.uuid"));
+```
+
+实际使用中，可以看到在SpringBoot的配置文件（spring.factories）下有如下EnvironmentPostProcessor：
+
+```properties
+# Environment Post Processors
+org.springframework.boot.env.EnvironmentPostProcessor=\
+org.springframework.boot.cloud.CloudFoundryVcapEnvironmentPostProcessor,\
+org.springframework.boot.context.config.ConfigDataEnvironmentPostProcessor,\
+org.springframework.boot.env.RandomValuePropertySourceEnvironmentPostProcessor,\
+org.springframework.boot.env.SpringApplicationJsonEnvironmentPostProcessor,\
+org.springframework.boot.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor,\
+org.springframework.boot.reactor.DebugAgentEnvironmentPostProcessor
+```
+
+上述EnvironmentPostProcessor可以通过如下代码看到
+
+```java
+List<String> names =
+    SpringFactoriesLoader.loadFactoryNames(EnvironmentPostProcessor.class, Step5.class.getClassLoader());
+for (String name : names) {
+    System.out.println(name);
+}
+```
+
+再看监听器：EnvironmentPostProcessorApplicationListener，通过这个监听器，调用上述的后处理器
+
+```java
+SpringApplication app = new SpringApplication();
+// 手动创建EnvironmentPostProcessorApplicationListener
+app.addListeners(new EnvironmentPostProcessorApplicationListener());
+
+// 创建监听器，后续手动发布事件
+EventPublishingRunListener publisher = new EventPublishingRunListener(app, args);
+ApplicationEnvironment env = new ApplicationEnvironment();
+System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 增强前");
+for (PropertySource<?> ps : env.getPropertySources()) {
+    System.out.println(ps);
+}
+// 发布事件，发布后，上面的监听器就会监听到执行对应的方法
+publisher.environmentPrepared(new DefaultBootstrapContext(), env);
+System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 增强后");
+for (PropertySource<?> ps : env.getPropertySources()) {
+    System.out.println(ps);
+}
+```
+
+##### 6）绑定 spring.main 到 SpringApplication 对象（*）
+
+> 对应源码
+>
+> ```java
+> // 接着方法prepareEnvironment内部
+> this.bindToSpringApplication((ConfigurableEnvironment)environment);
+> 
+> // 方法bindToSpringApplication
+> protected void bindToSpringApplication(ConfigurableEnvironment environment) {
+>     try {
+>         Binder.get(environment).bind("spring.main", Bindable.ofInstance(this));
+>     } catch (Exception var3) {
+>         throw new IllegalStateException("Cannot bind to SpringApplication", var3);
+>     }
+> }
+> ```
+
+```java
+package org.springframework.boot;
+
+import java.io.IOException;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.BindResult;
+import org.springframework.boot.context.properties.bind.Bindable;
+import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.ResourcePropertySource;
+
+import lombok.Data;
+
+/**
+ * @author xiaochao
+ * @date 2025/1/11 19:04
+ */
+public class Step6 {
+
+    /**
+     * 绑定 spring.main 前缀的 key value 至 SpringApplication, 请通过 debug 查看
+     *
+     * @param args
+     *
+     * @throws IOException
+     */
+    public static void main(String[] args) throws IOException {
+        SpringApplication application = new SpringApplication();
+        ApplicationEnvironment env = new ApplicationEnvironment();
+
+        // 对象绑定的基础使用：属性绑定，通过Binder
+        // 加载配置文件
+        env.getPropertySources()
+            .addLast(new ResourcePropertySource("step4", new ClassPathResource("step4.properties")));
+		// 绑定方式1
+        User user = Binder.get(env).bind("user", User.class).get();
+        System.out.println(user);
+
+		// 绑定方式2
+        User user2 = new User();
+        Binder.get(env).bind("user", Bindable.ofInstance(user2));
+        System.out.println(user2);
+
+        // 绑定 spring.main 前缀的 key value 至 SpringApplication
+        env.getPropertySources()
+            .addLast(new ResourcePropertySource("step6", new ClassPathResource("step6.properties")));
+        
+        System.out.println(application);
+        Binder.get(env).bind("spring.main", Bindable.ofInstance(application));
+        System.out.println(application);
+    }
+
+    // @ConfigurationProperties
+    @Data
+    static class User {
+        private String firstName;
+        private String middleName;
+        private String lastName;
+    }
+}
+```
+
+> step6.properties如下：
+>
+> ```properties
+> spring.main.banner-mode=off
+> spring.main.lazy-initialization=true
+> ```
+
+##### 7）打印 banner（*）
+
+> 对应源码
+>
+> ```java
+> Banner printedBanner = this.printBanner(environment);
+> ```
+
+```java
+package org.springframework.boot;
+
+import java.util.Collections;
+import java.util.Map;
+
+import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.io.DefaultResourceLoader;
+
+/**
+ * @author xiaochao
+ * @date 2025/1/11 19:04
+ */
+public class Step7 {
+    public static void main(String[] args) {
+        ApplicationEnvironment env = new ApplicationEnvironment();
+        SpringApplicationBannerPrinter printer =
+            new SpringApplicationBannerPrinter(new DefaultResourceLoader(), new SpringBootBanner());
+        // 测试文字 banner
+//        env.getPropertySources().addLast(
+//            new MapPropertySource("custom", Collections.singletonMap("spring.banner.location", "banner1.txt")));
+        // 测试图片 banner
+//        env.getPropertySources().addLast(
+//            new MapPropertySource("custom", Collections.singletonMap("spring.banner.image.location", "banner2.png")));
+        // 版本号的获取
+        System.out.println(SpringBootVersion.getVersion());
+        // 环境变量，main所在的类，输出目的
+        printer.print(env, Step7.class, System.out);
+    }
+}
+```
+
+##### 8）创建容器
+
+> 对应源码
+>
+> ```java
+> context = this.createApplicationContext();
+> ```
+
+```java
+System.out.println(">>>>>>>>>>>>>>>>>>>>>>>> 8. 创建容器");
+// 得到了Spring容器
+GenericApplicationContext context = createApplicationContext(WebApplicationType.SERVLET);
+
+private static GenericApplicationContext createApplicationContext(WebApplicationType type) {
+    GenericApplicationContext context = null;
+    switch (type) {
+        case SERVLET:
+            context = new AnnotationConfigServletWebServerApplicationContext();
+        case REACTIVE :
+            context = new AnnotationConfigReactiveWebServerApplicationContext();
+        case NONE :
+            context = new AnnotationConfigApplicationContext();
+    }
+    return context;
+}
+```
+
+##### 9）准备容器
+
+> 发布 application context 已初始化事件3️⃣
+>
+> 对应源码
+>
+> ```java
+> this.prepareContext(bootstrapContext, context, environment, listeners, applicationArguments, printedBanner);
+> 
+> // prepareContext方法内
+> this.applyInitializers(context);
+> // 发布 application context 已初始化事件3️⃣
+> listeners.contextPrepared(context);
+> ```
+
+```java
+SpringApplication app = new SpringApplication();
+app.addInitializers(new ApplicationContextInitializer<ConfigurableApplicationContext>() {
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+        // 等到容器创建完成后才会被执行
+        System.out.println("执行初始化器增强...");
+    }
+});
+
+System.out.println(">>>>>>>>>>>>>>>>>>>>>>>> 9. 准备容器");
+for (ApplicationContextInitializer initializer : app.getInitializers()) {
+    // 开始回调初始化器
+    initializer.initialize(context);
+}
+
+// 输出：
+>>>>>>>>>>>>>>>>>>>>>>>> 9. 准备容器
+执行初始化器增强...
+```
+
+##### 10）加载 bean 定义
+
+> 发布 application prepared 事件4️⃣
+>
+> 对应源码
+>
+> ```java
+> // 接着prepareContext方法内
+> Set<Object> sources = this.getAllSources();
+> Assert.notEmpty(sources, "Sources must not be empty");
+> this.load(context, sources.toArray(new Object[0]));
+> // 发布 application prepared 事件4️⃣
+> listeners.contextLoaded(context);
+> ```
+
+```java
+System.out.println(">>>>>>>>>>>>>>>>>>>>>>>> 10. 加载 bean 定义");
+DefaultListableBeanFactory beanFactory = context.getDefaultListableBeanFactory();
+// BeanDefinition加载方式1，注解
+AnnotatedBeanDefinitionReader reader1 = new AnnotatedBeanDefinitionReader(beanFactory);
+reader1.register(Config.class);
+// BeanDefinition加载方式2，xml
+XmlBeanDefinitionReader reader2 = new XmlBeanDefinitionReader(beanFactory);
+reader2.loadBeanDefinitions(new ClassPathResource("b03.xml"));
+//  BeanDefinition加载方式3，类路径扫描
+ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanFactory);
+scanner.scan("com.itheima.a39.sub");
+
+for (String name : context.getBeanDefinitionNames()) {
+    System.out.println("name:" + name + " 来源：" + beanFactory.getBeanDefinition(name).getResourceDescription());
+}
+
+// 关注输出：
+name:a39_3.Config 来源：null
+name:bean4 来源：class path resource [b03.xml]
+name:bean7 来源：file [/Users/zhuchengchao/Desktop/业务学习/个人学习/codeTest/Spring5/target/classes/cn/xyc/a39/sub/Bean7.class]
+name:bean5 来源：cn.xyc.a39.A39_3$Config
+name:servletWebServerFactory 来源：cn.xyc.a39.A39_3$Config
+```
+
+> cn.xyc.a39.A39_3中有如下内容
+>
+> ```java
+> static class Bean4 {}
+> 
+> static class Bean5 {}
+> 
+> @Configuration
+> static class Config {
+>     @Bean
+>     public Bean5 bean5() {
+>         return new Bean5();
+>     }
+> 
+>     @Bean
+>     public ServletWebServerFactory servletWebServerFactory() {
+>         return new TomcatServletWebServerFactory();
+>     }
+> }
+> ```
+>
+> b03.xml
+>
+> ```xml
+> <?xml version="1.0" encoding="UTF-8"?>
+> <beans xmlns="http://www.springframework.org/schema/beans"
+>        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+> 
+>     <bean id="bean4" class="cn.xyc.a39.A39_3.Bean4"/>
+> 
+> </beans>
+> ```
+>
+> bean7：cn.xyc.a39.sub.Bean7
+>
+> ```java
+> @Component
+> public class Bean7 {
+> }
+> ```
+
+##### 11）refresh 容器
+
+> 发布 application started 事件5️⃣
+>
+> 对应源码
+>
+> ```java
+> this.refreshContext(context);
+> // ...
+> // 发布 application started 事件5️⃣
+> listeners.started(context);
+> 
+> // refreshContext方法
+> private void refreshContext(ConfigurableApplicationContext context) {
+>     if (this.registerShutdownHook) {
+>         shutdownHook.registerApplicationContext(context);
+>     }
+> 
+>     this.refresh(context);
+> }
+> ```
+
+```java
+System.out.println(">>>>>>>>>>>>>>>>>>>>>>>> 11. refresh 容器");
+context.refresh();
+```
+
+##### 12）执行 runner
+
+> 发布 application ready 事件6️⃣
+>
+> 这其中有异常，发布 application failed 事件7️⃣
+>
+> 对应源码
+>
+> ```java
+> try {
+>     // 发布 application ready 事件6️⃣
+>     listeners.running(context);
+>     return context;
+> } catch (Throwable var9) {
+>     // 如果有异常，异常处理
+>     this.handleRunFailure(context, var9, (SpringApplicationRunListeners)null);
+>     throw new IllegalStateException(var9);
+> }
+> 
+> // 方法handleRunFailure内部
+> // 发布 application failed 事件7️⃣
+> listeners.failed(context, exception);
+> ```
+
+```java
+System.out.println(">>>>>>>>>>>>>>>>>>>>>>>> 12. 执行 runner");
+// SpringBoot启动的最后阶段被回调，进行一些业务逻辑，比如预加载数据等
+for (CommandLineRunner runner : context.getBeansOfType(CommandLineRunner.class).values()) {
+    runner.run(args);
+}
+
+for (ApplicationRunner runner : context.getBeansOfType(ApplicationRunner.class).values()) {
+    // 步骤2）中被封装
+    runner.run(arguments);
+}
+
+// 输出如下：这里注意：// 运行时请添加运行参数 --server.port=8080 debug
+>>>>>>>>>>>>>>>>>>>>>>>> 12. 执行 runner
+执行commandLineRunner()...[--server.port=8080, debug]
+执行applicationRunner()...[--server.port=8080, debug]
+OptionNames：[server.port]
+OptionValues[8080]
+NonOptionArgs[debug]
+```
+
+> 在cn.xyc.a39.A39_3.Config添加两个方法
+>
+> ```java
+> @Configuration
+> static class Config {
+>     // ...
+>     
+>     @Bean
+>     public CommandLineRunner commandLineRunner() {
+>         return new CommandLineRunner() {
+>             @Override
+>             public void run(String... args) throws Exception {
+>                 System.out.println("执行commandLineRunner()..." + Arrays.toString(args));
+>             }
+>         };
+>     }
+> 
+>     @Bean
+>     public ApplicationRunner applicationRunner() {
+>         return new ApplicationRunner() {
+>             // args的参数在步骤2）中被封装
+>             @Override
+>             public void run(ApplicationArguments args) throws Exception {
+>                 System.out.println("执行applicationRunner()..." + Arrays.toString(args.getSourceArgs()));
+>                 System.out.println("OptionNames：" + args.getOptionNames());
+>                 System.out.println("OptionValues" + args.getOptionValues("server.port"));
+>                 System.out.println("NonOptionArgs" + args.getNonOptionArgs());
+>             }
+>         };
+>     }
+> }
+> ```
+
+#### 演示：启动过程
+
+**cn.xyc.a39.A39_1** 对应 SpringApplication 构造
+
+**cn.xyc.a39.A39_2** 对应第1步，并演示 7 个事件
+
+**cn.xyc.a39.A39_3** 对应第2、8到12步
+
+**org.springframework.boot.Step3** 对应第3步
+
+**org.springframework.boot.Step4** 对应第4步
+
+**org.springframework.boot.Step5** 对应第5步
+
+**org.springframework.boot.Step6** 对应第6步
+
+**org.springframework.boot.Step7** 对应第7步
+
+#### 收获
+
+SpringApplication 构造方法中所做的操作
+
+1. 可以有多种源用来加载 bean 定义
+2. 应用类型推断
+3. 添加容器初始化器
+4. 添加监听器
+5. 演示主类推断
+
+如何读取 spring.factories 中的配置
+
+1. 从配置中获取重要的事件发布器：SpringApplicationRunListeners
+
+2. 容器的创建、初始化器增强、加载 bean 定义等
+
+3. CommandLineRunner、ApplicationRunner 的作用
+
+4. 环境对象
    1. 命令行 PropertySource
+
    2. ConfigurationPropertySources 规范环境键名称
+
    3. EnvironmentPostProcessor 后处理增强
-      * 由 EventPublishingRunListener 通过监听事件2️⃣来调用
+      
+      > 由 EventPublishingRunListener 通过监听事件2️⃣来调用
+      
    4. 绑定 spring.main 前缀的 key value 至 SpringApplication
-7. Banner 
 
-
+5. Banner
 
 ### 40) Tomcat 内嵌容器
 
