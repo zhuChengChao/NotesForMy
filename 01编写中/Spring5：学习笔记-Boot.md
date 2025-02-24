@@ -100,7 +100,7 @@ SpringApplication.run(A39_1.class, args);
 (new SpringApplication(primarySources)).run(args);
 ```
 
-> 源码如下 :
+> SpringApplication构造方法源码如下 :
 >
 > ```java
 > public SpringApplication(ResourceLoader resourceLoader, Class<?>... primarySources) {
@@ -134,7 +134,7 @@ SpringApplication.run(A39_1.class, args);
 ```java
 System.out.println("1. 演示获取 Bean Definition 源");
 SpringApplication spring = new SpringApplication(A39_1.class);
-// 添加BeanDefinition
+// 添加其他源来实现添加BeanDefinition
 spring.setSources(Collections.singleton("classpath:b01.xml"));
 
 // 运行Spirng容器
@@ -225,14 +225,14 @@ System.out.println("\t应用类型为:"+deduceFromClasspath.invoke(null));
 > }
 > ```
 
-##### 3）记录 ApplicationContext 初始化器
+##### 3）添加 ApplicationContext 初始化器
 
 ```java
 System.out.println("3. 演示 ApplicationContext 初始化器");
 spring.addInitializers(new ApplicationContextInitializer() {
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
-        // applicationContext 刚刚创建还没有初始化完成的
+        // applicationContext 刚刚创建还没有初始化完成的refresh
         if (applicationContext instanceof GenericApplicationContext) {
             GenericApplicationContext gac = (GenericApplicationContext) applicationContext;
             gac.registerBean("bean3", Bean3.class);
@@ -264,7 +264,7 @@ spring.addListeners(new ApplicationListener<ApplicationEvent>() {
         System.out.println("\t事件为:" + event.getClass());
     }
 });
-// spring.addListeners(event -> System.out.println("\t事件为:" + event.getClass()));
+// 简化：spring.addListeners(event -> System.out.println("\t事件为:" + event.getClass()));
 
 // 输出：
 事件为:class org.springframework.boot.context.event.ApplicationContextInitializedEvent
@@ -446,7 +446,7 @@ public class Step3 {
         ApplicationEnvironment env = new ApplicationEnvironment();
         // 解析配置文件添加属性（注意在 3）中是没有添加的）
         env.getPropertySources().addLast(new ResourcePropertySource(new ClassPathResource("application.properties")));
-        // 从命令行中添加属性
+        // 从命令行中添加属性，这个是在这步中加的
         env.getPropertySources().addFirst(new SimpleCommandLinePropertySource(args));
         for (PropertySource<?> ps : env.getPropertySources()) {
             System.out.println(ps);
@@ -569,6 +569,7 @@ for (PropertySource<?> ps : env.getPropertySources()) {
 }
 // 对比增强前，多了：
 // OriginTrackedMapPropertySource {name='Config resource 'class path resource [application.properties]' via location 'optional:classpath:/''}
+System.out.println(env.getProperty("server.port"));
 
 RandomValuePropertySourceEnvironmentPostProcessor postProcessor2 =
     new RandomValuePropertySourceEnvironmentPostProcessor(new DeferredLog());
@@ -579,8 +580,6 @@ for (PropertySource<?> ps : env.getPropertySources()) {
 }
 // 对比增强前，多了：
 // RandomValuePropertySource {name='random'}
-
-System.out.println(env.getProperty("server.port"));
 System.out.println(env.getProperty("random.int"));
 System.out.println(env.getProperty("random.int"));
 System.out.println(env.getProperty("random.int"));
@@ -944,14 +943,17 @@ context.refresh();
 > 对应源码
 >
 > ```java
+> this.callRunners(context, applicationArguments);
+> 
+> // callRunners方法
 > try {
->     // 发布 application ready 事件6️⃣
->     listeners.running(context);
->     return context;
+>  // 发布 application ready 事件6️⃣
+>  listeners.running(context);
+>  return context;
 > } catch (Throwable var9) {
->     // 如果有异常，异常处理
->     this.handleRunFailure(context, var9, (SpringApplicationRunListeners)null);
->     throw new IllegalStateException(var9);
+>  // 如果有异常，异常处理
+>  this.handleRunFailure(context, var9, (SpringApplicationRunListeners)null);
+>  throw new IllegalStateException(var9);
 > }
 > 
 > // 方法handleRunFailure内部
@@ -1062,7 +1064,7 @@ SpringApplication 构造方法中所做的操作
 
 5. Banner
 
-### 40) Tomcat 内嵌容器
+### 40 Tomcat 内嵌容器
 
 Tomcat 基本结构
 
@@ -1085,9 +1087,7 @@ Server
                         web.xml
 ```
 
-#### 演示1 - Tomcat 内嵌容器
-
-##### 关键代码
+#### Tomcat 内嵌容器
 
 ```java
 public static void main(String[] args) throws LifecycleException, IOException {
@@ -1119,54 +1119,446 @@ public static void main(String[] args) throws LifecycleException, IOException {
     connector.setPort(8080);
     tomcat.setConnector(connector);
 }
+
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("text/html;charset=utf-8");
+        resp.getWriter().print(("<h3>hello</h3>"));
+    }
+}
 ```
 
-
-
-#### 演示2 - 集成 Spring 容器
-
-##### 关键代码
+#### 集成 Spring 容器
 
 ```java
+// 创建Spring容器
 WebApplicationContext springContext = getApplicationContext();
 
 // 4.编程添加 Servlet
 context.addServletContainerInitializer(new ServletContainerInitializer() {
     @Override
     public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
+        /*DispatcherServlet dispatcherServlet = springContext.getBean(DispatcherServlet.class);
+		ctx.addServlet("dispatcherServlet", dispatcherServlet).addMapping("/");*/
         // ⬇️通过 ServletRegistrationBean 添加 DispatcherServlet 等
         for (ServletRegistrationBean registrationBean : 
              springContext.getBeansOfType(ServletRegistrationBean.class).values()) {
+            // 等效上面的：ctx.addServlet...
             registrationBean.onStartup(ctx);
         }
     }
 }, Collections.emptySet());
+
+/**
+ * 创建spring容器
+ *
+ * @return
+ */
+public static WebApplicationContext getApplicationContext() {
+    // AnnotationConfigServletWebServerApplicationContext，这类已经是支持了内嵌的tomcat，这边不用这个类
+    // 没有支持内嵌tomcat的
+    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+    context.register(Config.class);
+    context.refresh();
+    return context;
+}
+
+@Configuration
+static class Config {
+    @Bean
+    public DispatcherServletRegistrationBean registrationBean(DispatcherServlet dispatcherServlet) {
+        return new DispatcherServletRegistrationBean(dispatcherServlet, "/");
+    }
+
+    /**
+     * 这个例子中必须为 DispatcherServlet 提供 AnnotationConfigWebApplicationContext, 否则会选择 XmlWebApplicationContext 实现
+     *
+     * @param applicationContext
+     *
+     * @return
+     */
+    @Bean
+    public DispatcherServlet dispatcherServlet(WebApplicationContext applicationContext) {
+        return new DispatcherServlet(applicationContext);
+    }
+
+    @Bean
+    public RequestMappingHandlerAdapter requestMappingHandlerAdapter() {
+        RequestMappingHandlerAdapter handlerAdapter = new RequestMappingHandlerAdapter();
+        handlerAdapter.setMessageConverters(Collections.singletonList(new MappingJackson2HttpMessageConverter()));
+        return handlerAdapter;
+    }
+
+    @RestController
+    static class MyController {
+        @GetMapping("hello2")
+        public Map<String, Object> hello() {
+            return Collections.singletonMap("hello2", "hello2, spring!");
+        }
+    }
+}
 ```
 
+### 41. Boot 自动配置
 
+#### 自动配置原理
 
-### 41) Boot 自动配置
+```java
+/**
+ * @author xiaochao
+ * @date 2025/2/15 18:19
+ */
+public class A41_1 {
 
-#### AopAutoConfiguration
+    public static void main(String[] args) {
 
-Spring Boot 是利用了自动配置类来简化了 aop 相关配置
+        GenericApplicationContext context = new GenericApplicationContext();
+        // 类冲突解决-2：是否允许bean定义被覆盖，默认是true，springboot中是false
+        context.getDefaultListableBeanFactory().setAllowBeanDefinitionOverriding(false);
+        context.registerBean("config", Config.class);
+        // 解析注解的后处理器
+        context.registerBean(ConfigurationClassPostProcessor.class);
+        context.refresh();
 
-* AOP 自动配置类为 `org.springframework.boot.autoconfigure.aop.AopAutoConfiguration`
-* 可以通过 `spring.aop.auto=false` 禁用 aop 自动配置
-* AOP 自动配置的本质是通过 `@EnableAspectJAutoProxy` 来开启了自动代理，如果在引导类上自己添加了 `@EnableAspectJAutoProxy` 那么以自己添加的为准
-* `@EnableAspectJAutoProxy` 的本质是向容器中添加了 `AnnotationAwareAspectJAutoProxyCreator` 这个 bean 后处理器，它能够找到容器中所有切面，并为匹配切点的目标类创建代理，创建代理的工作一般是在 bean 的初始化阶段完成的
+        for (String name : context.getBeanDefinitionNames()) {
+            System.out.println(name);
+        }
+        System.out.println(">>>>>>>>>>>>>>>>");
+        System.out.println(context.getBean(Bean1.class));
+        // 类冲突解决-3
+        // .setAllowBeanDefinitionOverriding(true);
+        // MyImportSelector implements ImportSelector,输出 A41_1.Bean1(name=本项目的)
+        // MyImportSelector implements DeferredImportSelector，输出 A41_1.Bean1(name=第三方)
+    }
 
+    // 本项目的配置类
+    @Configuration
+    // @Import({AutoConfiguration1.class, AutoConfiguration2.class}) // 1.0 直接导入
+    @Import(MyImportSelector.class) // 2.0 通过单独的配置类导入
+    static class Config {
+        @Bean
+        public Bean1 bean1() {
+            // 类冲突解决-1：当第三方和本项目中有一样的类型的bean时，默认本项目生效，
+            // 因为@Import先被解析，再解析本项目的@Bean，后注册的会覆盖掉新注册的，
+            // 类冲突解决-2：可以设置是否允许覆盖setAllowBeanDefinitionOverriding
+            // 类冲突解决-3：也可以修改解析顺序，配置类MyImportSelector不直接实现ImportSelector，而是实现DeferredImportSelector
+            return new Bean1("本项目的");
+        }
+    }
 
+    // 专门引入第三方配置类的工具类
+    static class MyImportSelector implements DeferredImportSelector/*推迟导入，第三方导入优先级变低*/ /*ImportSelector*/ {
+        @Override
+        public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+            // return new String[] {AutoConfiguration1.class.getName(), AutoConfiguration2.class.getName()};
+            // 3.0 配置文件的方式，在 工程的META-INF下创建名为 spring.properties 的文件
+            List<String> names = SpringFactoriesLoader.loadFactoryNames(MyImportSelector.class, null);
+            return names.toArray(new String[0]);
+            
+            /*// 其他:所有实现了 EnableAutoConfiguration 的类，都会被加载
+            List<String> names = SpringFactoriesLoader.loadFactoryNames(EnableAutoConfiguration.class, null);
+            names.forEach(System.out::println);
+            return names.toArray(new String[0]);*/
+        }
+    }
 
-#### DataSourceAutoConfiguration
+    // 第三方的配置类
+    @Configuration
+    static class AutoConfiguration1 {
+        @Bean
+        @ConditionalOnMissingBean // 类冲突解决-4,本项目没有时才导入
+        public Bean1 bean1() {
+            return new Bean1("第三方");
+        }
+    }
 
-* 对应的自动配置类为：org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-* 它内部采用了条件装配，通过检查容器的 bean，以及类路径下的 class，来决定该 @Bean 是否生效
+    // 第三方的配置类
+    @Configuration
+    static class AutoConfiguration2 {
+        @Bean
+        public Bean2 bean2() {
+            return new Bean2();
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    static class Bean1 {
+        private String name;
+    }
+
+    static class Bean2 {
+    }
+}
+
+```
+
+配置文件：`classpath：resources/META-INF/spring.factories`
+
+```properties
+cn.xyc.a41.A41_1$MyImportSelector=\
+  cn.xyc.a41.A41_1.AutoConfiguration1,\
+  cn.xyc.a41.A41_1.AutoConfiguration2
+```
+
+#### AOP 自动配置
+
+AopAutoConfiguration，Spring Boot 是利用了自动配置类来了 aop 相关配置
+
+AOP 自动配置类为 `org.springframework.boot.autoconfigure.aop.AopAutoConfiguration`
+
+可以通过 `spring.aop.auto=false` 禁用 aop 自动配置
+
+```java
+@Configuration(
+    proxyBeanMethods = false
+)
+// 条件配置：配置文件中存在spring.aop.auto=true生效AopAutoConfiguration || matchIfMissing=true表示没有键值也生效
+@ConditionalOnProperty(
+    prefix = "spring.aop",
+    name = {"auto"},
+    havingValue = "true",
+    matchIfMissing = true
+)
+public class AopAutoConfiguration {
+```
+
+AOP 自动配置的本质是通过 `@EnableAspectJAutoProxy` 来开启了自动代理，如果在引导类上自己添加了 `@EnableAspectJAutoProxy` 那么以自己添加的为准
+
+```java
+@Configuration(
+    proxyBeanMethods = false
+)
+// SpringBoot默认加入了AOP功能，都会有Advice，因此加载AspectJAutoProxyingConfiguration
+@ConditionalOnClass({Advice.class})
+static class AspectJAutoProxyingConfiguration {
+    AspectJAutoProxyingConfiguration() {
+    }
+
+    @Configuration(
+        proxyBeanMethods = false
+    )
+    // 通过这个开启自动代理，且proxyTargetClass = true
+    @EnableAspectJAutoProxy(
+        proxyTargetClass = true
+    )
+    // 配置文件中存在spring.aop.proxy-target-class=ture || 没有这个条件，这边满足这个条件
+    @ConditionalOnProperty(
+        prefix = "spring.aop",
+        name = {"proxy-target-class"},
+        havingValue = "true",
+        matchIfMissing = true
+    )
+    static class CglibAutoProxyConfiguration {
+        CglibAutoProxyConfiguration() {
+        }
+    }
+
+    @Configuration(
+        proxyBeanMethods = false
+    )
+    @EnableAspectJAutoProxy(
+        proxyTargetClass = false
+    )
+    // 配置文件中存在spring.aop.proxy-target-class=false
+    @ConditionalOnProperty(
+        prefix = "spring.aop",
+        name = {"proxy-target-class"},
+        havingValue = "false"
+    )
+    static class JdkDynamicAutoProxyConfiguration {
+        JdkDynamicAutoProxyConfiguration() {
+        }
+    }
+}
+```
+
+`@EnableAspectJAutoProxy` 的本质是向容器中添加了 `AnnotationAwareAspectJAutoProxyCreator` 这个 bean 后处理器，它能够找到容器中所有切面，并为匹配切点的目标类创建代理，创建代理的工作一般是在 bean 的初始化阶段完成的
+
+```java
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+// 导入AspectJAutoProxyRegistrar，进入后可以发现最终加入了AnnotationAwareAspectJAutoProxyCreator
+@Import({AspectJAutoProxyRegistrar.class})
+public @interface EnableAspectJAutoProxy {
+    boolean proxyTargetClass() default false;
+
+    boolean exposeProxy() default false;
+}
+```
+
+> 测试代码
+>
+> ```java
+> package cn.xyc.a41;
+> 
+> import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
+> import org.springframework.context.annotation.AnnotationConfigUtils;
+> import org.springframework.context.annotation.Configuration;
+> import org.springframework.context.annotation.DeferredImportSelector;
+> import org.springframework.context.annotation.Import;
+> import org.springframework.context.support.GenericApplicationContext;
+> import org.springframework.core.env.SimpleCommandLinePropertySource;
+> import org.springframework.core.env.StandardEnvironment;
+> import org.springframework.core.type.AnnotationMetadata;
+> 
+> /**
+>  * @author xiaochao
+>  * @date 2025/2/15 19:06
+>  */
+> public class TestAopAuto {
+> 
+>     public static void main(String[] args) {
+>         GenericApplicationContext context = new GenericApplicationContext();
+>         // 注册一些常用的后处理器
+>         AnnotationConfigUtils.registerAnnotationConfigProcessors(context.getDefaultListableBeanFactory());
+>         context.registerBean(Config.class);
+>         // 加变量进去，使得AopAutoConfiguration失效[@ConditionalOnProperty(
+>         //    prefix = "spring.aop",
+>         //    name = {"auto"},
+>         //    havingValue = "true",
+>         //    matchIfMissing = true
+>         //)]
+>         StandardEnvironment env = new StandardEnvironment();
+>         env.getPropertySources().addLast(new SimpleCommandLinePropertySource("--spring.aop.auto=false"));
+>         context.setEnvironment(env);
+>         context.refresh();
+>         for (String name : context.getBeanDefinitionNames()) {
+>             System.out.println(name);
+>         }
+>     }
+> 
+>     @Configuration
+>     @Import(MyImportSelector.class)
+>     static class Config {
+> 
+>     }
+> 
+>     static class MyImportSelector implements DeferredImportSelector {
+>         @Override
+>         public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+>             // AOP的自动配置类注入
+>             return new String[]{AopAutoConfiguration.class.getName()};
+>             // 有如下：
+>             //org.springframework.boot.autoconfigure.aop.AopAutoConfiguration$AspectJAutoProxyingConfiguration$CglibAutoProxyConfiguration
+>             //org.springframework.aop.config.internalAutoProxyCreator
+>             //org.springframework.boot.autoconfigure.aop.AopAutoConfiguration$AspectJAutoProxyingConfiguration
+>             //org.springframework.boot.autoconfigure.aop.AopAutoConfiguration
+>         }
+>     }
+> }
+> ```
+
+#### DataSource相关自动配置
+
+```java
+public class TestDataSourceAuto {
+
+    public static void main(String[] args) {
+        GenericApplicationContext context = new GenericApplicationContext();
+        StandardEnvironment env = new StandardEnvironment();
+        env.getPropertySources().addLast(new SimpleCommandLinePropertySource(
+            "--spring.datasource.url=jdbc:mysql://localhost:3306/test",
+            "--spring.datasource.username=root",
+            "--spring.datasource.password=root"
+        ));
+        context.setEnvironment(env);
+        AnnotationConfigUtils.registerAnnotationConfigProcessors(context.getDefaultListableBeanFactory());
+        context.registerBean(Config.class);
+
+        String packageName = TestDataSourceAuto.class.getPackage().getName();
+        System.out.println("当前包名:" + packageName);
+        AutoConfigurationPackages.register(context.getDefaultListableBeanFactory(),
+            packageName);
+
+        context.refresh();
+        for (String name : context.getBeanDefinitionNames()) {
+            String resourceDescription = context.getBeanDefinition(name).getResourceDescription();
+            if (resourceDescription != null)
+                System.out.println(name + " 来源:" + resourceDescription);
+        }
+
+        DataSourceProperties bean = context.getBean(DataSourceProperties.class);
+        System.out.println(bean.getUrl());
+        System.out.println(bean.getUsername());
+        System.out.println(bean.getPassword());
+    }
+
+    @Configuration
+    @Import(MyImportSelector.class)
+    static class Config {
+
+    }
+
+    static class MyImportSelector implements DeferredImportSelector {
+        @Override
+        public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+            return new String[]{
+                DataSourceAutoConfiguration.class.getName(),
+                MybatisAutoConfiguration.class.getName(),
+                DataSourceTransactionManagerAutoConfiguration.class.getName(),
+                TransactionAutoConfiguration.class.getName()
+            };
+        }
+    }
+}
+```
+
+**DataSourceAutoConfiguration**
+
+对应的自动配置类为：`org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration`
+
+它内部采用了条件装配，通过检查容器的 bean，以及类路径下的 class，来决定该 @Bean 是否生效
+
+```java
+@Configuration(
+    proxyBeanMethods = false
+)
+@ConditionalOnClass({DataSource.class, EmbeddedDatabaseType.class})
+@ConditionalOnMissingBean(
+    type = {"io.r2dbc.spi.ConnectionFactory"}
+)
+// 加入DataSourceProperties这个Bean，绑定环境变量中的一些键值信息，前缀为【prefix = "spring.datasource"】
+@EnableConfigurationProperties({DataSourceProperties.class}) 
+@Import({DataSourcePoolMetadataProvidersConfiguration.class, DataSourceInitializationConfiguration.InitializationSpecificCredentialsDataSourceInitializationConfiguration.class, DataSourceInitializationConfiguration.SharedCredentialsDataSourceInitializationConfiguration.class})
+public class DataSourceAutoConfiguration {
+```
 
 简单说明一下，Spring Boot 支持两大类数据源：
 
 * EmbeddedDatabase - 内嵌数据库连接池
+
+  ```java
+  @Configuration(
+      proxyBeanMethods = false
+  )
+  @Conditional({EmbeddedDatabaseCondition.class})
+  @ConditionalOnMissingBean({DataSource.class, XADataSource.class})
+  @Import({EmbeddedDataSourceConfiguration.class})
+  protected static class EmbeddedDatabaseConfiguration {
+      protected EmbeddedDatabaseConfiguration() {
+      }
+  }
+  ```
+
 * PooledDataSource - 非内嵌数据库连接池
+
+  ```java
+  @Configuration(
+      proxyBeanMethods = false
+  )
+  @Conditional({PooledDataSourceCondition.class})
+  @ConditionalOnMissingBean({DataSource.class, XADataSource.class})
+  // 导入数据源配置DataSourceConfiguration
+  @Import({DataSourceConfiguration.Hikari.class, DataSourceConfiguration.Tomcat.class, DataSourceConfiguration.Dbcp2.class, DataSourceConfiguration.OracleUcp.class, DataSourceConfiguration.Generic.class, DataSourceJmxConfiguration.class})
+  protected static class PooledDataSourceConfiguration {
+      protected PooledDataSourceConfiguration() {
+      }
+  }
+  ```
 
 PooledDataSource 又支持如下数据源
 
@@ -1177,17 +1569,144 @@ PooledDataSource 又支持如下数据源
 
 如果知道数据源的实现类类型，即指定了 `spring.datasource.type`，理论上可以支持所有数据源，但这样做的一个最大问题是无法订制每种数据源的详细配置（如最大、最小连接数等）
 
+```java
+// 类DataSourceConfiguration.Hikari.class
+@Configuration(
+    proxyBeanMethods = false
+)
+@ConditionalOnClass({HikariDataSource.class})
+@ConditionalOnMissingBean({DataSource.class})
+// 配置了spring.datasource.type=com.zaxxer.hikari.HikariDataSource || 没有配置
+@ConditionalOnProperty(
+    name = {"spring.datasource.type"},
+    havingValue = "com.zaxxer.hikari.HikariDataSource",
+    matchIfMissing = true
+)
+static class Hikari {
+    Hikari() {
+    }
 
+    @Bean
+    @ConfigurationProperties(
+        prefix = "spring.datasource.hikari"
+    )
+    HikariDataSource dataSource(DataSourceProperties properties) {
+        // 创建了HikariDataSource
+        HikariDataSource dataSource = (HikariDataSource)DataSourceConfiguration.createDataSource(properties, HikariDataSource.class);
+        if (StringUtils.hasText(properties.getName())) {
+            dataSource.setPoolName(properties.getName());
+        }
 
-#### MybatisAutoConfiguration
+        return dataSource;
+    }
+}
+```
 
-* MyBatis 自动配置类为 `org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration`
-* 它主要配置了两个 bean
-  * SqlSessionFactory - MyBatis 核心对象，用来创建 SqlSession
-  * SqlSessionTemplate - SqlSession 的实现，此实现会与当前线程绑定
-  * 用 ImportBeanDefinitionRegistrar 的方式扫描所有标注了 @Mapper 注解的接口
-  * 用 AutoConfigurationPackages 来确定扫描的包
-* 还有一个相关的 bean：MybatisProperties，它会读取配置文件中带 `mybatis.` 前缀的配置项进行定制配置
+> 演示代码：DataSourceAutoConfiguration、MybatisAutoConfiguration、DataSourceTransactionManagerAutoConfiguration、TransactionAutoConfiguration 同时配置
+>
+> ```java
+> public class TestDataSourceAuto {
+> 
+>     public static void main(String[] args) {
+>         GenericApplicationContext context = new GenericApplicationContext();
+>         StandardEnvironment env = new StandardEnvironment();
+>         env.getPropertySources().addLast(new SimpleCommandLinePropertySource(
+>             "--spring.datasource.url=jdbc:mysql://localhost:3306/test",
+>             "--spring.datasource.username=root",
+>             "--spring.datasource.password=root"
+>         ));
+>         context.setEnvironment(env);
+>         AnnotationConfigUtils.registerAnnotationConfigProcessors(context.getDefaultListableBeanFactory());
+>         context.registerBean(Config.class);
+> 
+> //        String packageName = TestDataSourceAuto.class.getPackageName();
+> //        System.out.println("当前包名:" + packageName);
+> //        AutoConfigurationPackages.register(context.getDefaultListableBeanFactory(),
+> //            packageName);
+> 
+>         context.refresh();
+>         for (String name : context.getBeanDefinitionNames()) {
+>             String resourceDescription = context.getBeanDefinition(name).getResourceDescription();
+>             if (resourceDescription != null)
+>                 System.out.println(name + " 来源:" + resourceDescription);
+>         }
+> 
+>         DataSourceProperties bean = context.getBean(DataSourceProperties.class);
+>         System.out.println(bean.getUrl());
+>         System.out.println(bean.getUsername());
+>         System.out.println(bean.getPassword());
+>     }
+> 
+>     @Configuration
+>     @Import(MyImportSelector.class)
+>     static class Config {
+> 
+>     }
+> 
+>     static class MyImportSelector implements DeferredImportSelector {
+>         @Override
+>         public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+>             return new String[]{
+>                 DataSourceAutoConfiguration.class.getName(),
+>                 MybatisAutoConfiguration.class.getName(),
+>                 DataSourceTransactionManagerAutoConfiguration.class.getName(),
+>                 TransactionAutoConfiguration.class.getName()
+>             };
+>         }
+>     }
+> }
+> ```
+
+**MybatisAutoConfiguration**
+
+MyBatis 自动配置类为 `org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration`
+
+```java
+@Configuration
+// 类路径下存在：SqlSessionFactory.class, SqlSessionFactoryBean.class
+@ConditionalOnClass({SqlSessionFactory.class, SqlSessionFactoryBean.class})
+// 容器中仅存在DataSource
+@ConditionalOnSingleCandidate(DataSource.class)
+// 创建MybatisProperties属性对象，进行参数绑定，前缀为【mybatis.】
+@EnableConfigurationProperties({MybatisProperties.class})
+// 控制多个配置类之间的解析顺序
+@AutoConfigureAfter({DataSourceAutoConfiguration.class, MybatisLanguageDriverAutoConfiguration.class})
+public class MybatisAutoConfiguration implements InitializingBean {
+}
+```
+
+它主要配置了两个 bean
+* SqlSessionFactory - MyBatis 核心对象，用来创建 SqlSession
+
+  ```java
+  @Bean
+  @ConditionalOnMissingBean
+  public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
+  ```
+
+* SqlSessionTemplate - SqlSession 的实现，此实现会与当前线程绑定
+
+  ```java
+  @Bean
+  @ConditionalOnMissingBean
+  public SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sqlSessionFactory) {
+  ```
+
+* 用 ImportBeanDefinitionRegistrar 的方式扫描所有标注了 @Mapper 注解的接口
+
+* 用 AutoConfigurationPackages 来确定扫描的包
+
+  ```java
+  // 容器初始化前加包名
+  String packageName = TestDataSourceAuto.class.getPackage().getName();
+  System.out.println("当前包名:" + packageName);
+  AutoConfigurationPackages.register(context.getDefaultListableBeanFactory(),
+      packageName);
+  // 容器初始化
+  context.refresh();
+  ```
+
+还有一个相关的 bean：MybatisProperties，它会读取配置文件中带 `mybatis.` 前缀的配置项进行定制配置
 
 @MapperScan 注解的作用与 MybatisAutoConfiguration 类似，会注册 MapperScannerConfigurer 有如下区别
 
@@ -1199,69 +1718,141 @@ PooledDataSource 又支持如下数据源
 
 * 其实并非将接口交给 Spring 管理，而是每个接口会对应一个 MapperFactoryBean，是后者被 Spring 所管理，接口只是作为 MapperFactoryBean 的一个属性来配置
 
+**TransactionAutoConfiguration**
 
+事务自动配置类有两个：
+* `org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration`
+* `org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration`
 
-#### TransactionAutoConfiguration
+前者配置了 DataSourceTransactionManager 用来执行事务的提交、回滚操作
 
-* 事务自动配置类有两个：
-  * `org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration`
-  * `org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration`
+后者功能上对标 @EnableTransactionManagement，包含以下三个 bean
+* BeanFactoryTransactionAttributeSourceAdvisor 事务切面类，包含通知和切点
+* TransactionInterceptor 事务通知类，由它在目标方法调用前后加入事务操作
+* AnnotationTransactionAttributeSource 会解析 @Transactional 及事务属性，也包含了切点功能
 
-* 前者配置了 DataSourceTransactionManager 用来执行事务的提交、回滚操作
-* 后者功能上对标 @EnableTransactionManagement，包含以下三个 bean
-  * BeanFactoryTransactionAttributeSourceAdvisor 事务切面类，包含通知和切点
-  * TransactionInterceptor 事务通知类，由它在目标方法调用前后加入事务操作
-  * AnnotationTransactionAttributeSource 会解析 @Transactional 及事务属性，也包含了切点功能
-* 如果自己配置了 DataSourceTransactionManager 或是在引导类加了 @EnableTransactionManagement，则以自己配置的为准
+如果自己配置了 DataSourceTransactionManager 或是在引导类加了 @EnableTransactionManagement，则以自己配置的为准
 
+#### MVC相关自动配置
 
+```java
+/**
+ * @author xiaochao
+ * @date 2025/2/16 16:49
+ */
+public class TestMvcAuto {
 
-#### ServletWebServerFactoryAutoConfiguration
+    public static void main(String[] args) {
+        AnnotationConfigServletWebServerApplicationContext context = new AnnotationConfigServletWebServerApplicationContext();
+        context.registerBean(Config.class);
+        context.refresh();
+        for (String name : context.getBeanDefinitionNames()) {
+            String source = context.getBeanDefinition(name).getResourceDescription();
+            if (source != null) {
+                System.out.println(name + " 来源:" + source);
+            }
+        }
+        context.close();
 
-* 提供 ServletWebServerFactory
+    }
 
+    @Configuration
+    @Import(MyImportSelector.class)
+    static class Config {
 
+    }
 
-#### DispatcherServletAutoConfiguration
+    static class MyImportSelector implements DeferredImportSelector {
+        @Override
+        public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+            return new String[]{
+                ServletWebServerFactoryAutoConfiguration.class.getName(),
+                DispatcherServletAutoConfiguration.class.getName(),
+                WebMvcAutoConfiguration.class.getName(),
+                ErrorMvcAutoConfiguration.class.getName()
+            };
+        }
+    }
+}
+```
 
-* 提供 DispatcherServlet
-* 提供 DispatcherServletRegistrationBean
+**ServletWebServerFactoryAutoConfiguration**
 
+提供 ServletWebServerFactory
 
+```java
+@Configuration(
+    proxyBeanMethods = false
+)
+@AutoConfigureOrder(Integer.MIN_VALUE)
+@ConditionalOnClass({ServletRequest.class})
+@ConditionalOnWebApplication(
+    type = Type.SERVLET
+)
+@EnableConfigurationProperties({ServerProperties.class})
+// 导入：ServletWebServerFactoryConfiguration.EmbeddedTomcat.class，在该类下导入了ServletWebServerFactory
+@Import({BeanPostProcessorsRegistrar.class, ServletWebServerFactoryConfiguration.EmbeddedTomcat.class, ServletWebServerFactoryConfiguration.EmbeddedJetty.class, ServletWebServerFactoryConfiguration.EmbeddedUndertow.class})
+public class ServletWebServerFactoryAutoConfiguration {
+```
 
-#### WebMvcAutoConfiguration
+**DispatcherServletAutoConfiguration**
 
-* 配置 DispatcherServlet 的各项组件，提供的 bean 见过的有
-  * 多项 HandlerMapping
-  * 多项 HandlerAdapter
-  * HandlerExceptionResolver
+提供 DispatcherServlet
 
+```java
+@Bean(
+    name = {"dispatcherServlet"}
+)
+public DispatcherServlet dispatcherServlet(WebMvcProperties webMvcProperties) {
+    DispatcherServlet dispatcherServlet = new DispatcherServlet();
+    dispatcherServlet.setDispatchOptionsRequest(webMvcProperties.isDispatchOptionsRequest());
+    dispatcherServlet.setDispatchTraceRequest(webMvcProperties.isDispatchTraceRequest());
+    dispatcherServlet.setThrowExceptionIfNoHandlerFound(webMvcProperties.isThrowExceptionIfNoHandlerFound());
+    dispatcherServlet.setPublishEvents(webMvcProperties.isPublishRequestHandledEvents());
+    dispatcherServlet.setEnableLoggingRequestDetails(webMvcProperties.isLogRequestDetails());
+    return dispatcherServlet;
+}
+```
 
+提供 DispatcherServletRegistrationBean
 
-#### ErrorMvcAutoConfiguration
+```java
+@Configuration(
+    proxyBeanMethods = false
+)
+@Conditional({DispatcherServletRegistrationCondition.class})
+@ConditionalOnClass({ServletRegistration.class})
+@EnableConfigurationProperties({WebMvcProperties.class})
+@Import({DispatcherServletConfiguration.class})
+protected static class DispatcherServletRegistrationConfiguration {
+```
 
-* 提供的 bean 有 BasicErrorController
+**WebMvcAutoConfiguration**
 
+配置 DispatcherServlet 的各项组件，提供的 bean 见过的有
+* 多项 HandlerMapping
+* 多项 HandlerAdapter
+* HandlerExceptionResolver
 
+**ErrorMvcAutoConfiguration**
 
-#### MultipartAutoConfiguration
+提供的 bean 有 BasicErrorController
 
-* 它提供了 org.springframework.web.multipart.support.StandardServletMultipartResolver
-* 该 bean 用来解析 multipart/form-data 格式的数据
+**MultipartAutoConfiguration**
 
+它提供了 org.springframework.web.multipart.support.StandardServletMultipartResolver
 
+该 bean 用来解析 multipart/form-data 格式的数据
 
-#### HttpEncodingAutoConfiguration
+**HttpEncodingAutoConfiguration**
 
-* POST 请求参数如果有中文，无需特殊设置，这是因为 Spring Boot 已经配置了 org.springframework.boot.web.servlet.filter.OrderedCharacterEncodingFilter
-* 对应配置 server.servlet.encoding.charset=UTF-8，默认就是 UTF-8
-* 当然，它只影响非 json 格式的数据
+POST 请求参数如果有中文，无需特殊设置，这是因为 Spring Boot 已经配置了 org.springframework.boot.web.servlet.filter.OrderedCharacterEncodingFilter
 
+对应配置 server.servlet.encoding.charset=UTF-8，默认就是 UTF-8
 
+当然，它只影响非 json 格式的数据
 
-#### 演示 - 自动配置类原理
-
-##### 关键代码
+#### 自定义自动配置类
 
 假设已有第三方的两个自动配置类
 
@@ -1286,24 +1877,29 @@ static class AutoConfiguration2 {
 提供一个配置文件 META-INF/spring.factories，key 为导入器类名，值为多个自动配置类名，用逗号分隔
 
 ```properties
-MyImportSelector=\
-AutoConfiguration1,\
-AutoConfiguration2
+cn.xyc.a41.A41_1$MyImportSelector=\
+  cn.xyc.a41.A41_1.AutoConfiguration1,\
+  cn.xyc.a41.A41_1.AutoConfiguration2
 ```
 
-> ***注意***
->
-> * 上述配置文件中 MyImportSelector 与 AutoConfiguration1，AutoConfiguration2 为简洁均省略了包名，自己测试时请将包名根据情况补全
+如果要被SpringBoot的读取到的话，修改上述配置文件
+
+```properties
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  cn.xyc.a41.A41_1.AutoConfiguration1,\
+  cn.xyc.a41.A41_1.AutoConfiguration2
+```
 
 引入自动配置
 
 ```java
-@Configuration // ⬅️本项目的配置类
-@Import(MyImportSelector.class)
+@Configuration 
+// @Import(MyImportSelector.class)
+@EnableAutoConfiguration
 static class Config { }
 
 static class MyImportSelector implements DeferredImportSelector {
-    // ⬇️该方法从 META-INF/spring.factories 读取自动配置类名，返回的 String[] 即为要导入的配置类
+    // 该方法从 META-INF/spring.factories 读取自动配置类名，返回的 String[] 即为要导入的配置类
     public String[] selectImports(AnnotationMetadata importingClassMetadata) {
         return SpringFactoriesLoader
             .loadFactoryNames(MyImportSelector.class, null).toArray(new String[0]);
@@ -1311,16 +1907,14 @@ static class MyImportSelector implements DeferredImportSelector {
 }
 ```
 
-#### 收获💡
+**收获**
 
 1. 自动配置类本质上就是一个配置类而已，只是用 META-INF/spring.factories 管理，与应用配置类解耦
 2. @Enable 打头的注解本质是利用了 @Import
 3. @Import 配合 DeferredImportSelector 即可实现导入，selectImports 方法的返回值即为要导入的配置类名
 4. DeferredImportSelector 的导入会在最后执行，为的是让其它配置优先解析
 
-
-
-### 42) 条件装配底层
+### 42. 条件装配底层
 
 条件装配的底层是本质上是 @Conditional 与 Condition，这两个注解。引入自动配置类时，期望满足一定条件才能被 Spring 管理，不满足则不管理，怎么做呢？
 
@@ -1329,8 +1923,8 @@ static class MyImportSelector implements DeferredImportSelector {
 首先编写条件判断类，它实现 Condition 接口，编写条件判断逻辑
 
 ```java
-static class MyCondition1 implements Condition { 
-    // ⬇️如果存在 Druid 依赖，条件成立
+static class MyCondition1 implements Condition { // 存在 Druid 依赖
+    @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
         return ClassUtils.isPresent("com.alibaba.druid.pool.DruidDataSource", null);
     }
@@ -1341,7 +1935,7 @@ static class MyCondition1 implements Condition {
 
 ```java
 @Configuration // 第三方的配置类
-@Conditional(MyCondition1.class) // ⬅️加入条件
+@Conditional(MyCondition1.class)
 static class AutoConfiguration1 {
     @Bean
     public Bean1 bean1() {
@@ -1360,6 +1954,79 @@ static class AutoConfiguration1 {
 </dependency>
 ```
 
-#### 收获💡
+收获：学习一种特殊的 if - else
 
-1. 学习一种特殊的 if - else
+优化下上述代码，如下：
+
+```java
+/**
+ * @author xiaochao
+ * @date 2025/2/16 17:29
+ */
+public class A42_2 {
+
+    public static void main(String[] args) throws IOException {
+        GenericApplicationContext context = new GenericApplicationContext();
+        context.registerBean("config", Config.class);
+        context.registerBean(ConfigurationClassPostProcessor.class);
+        context.refresh();
+
+        for (String name : context.getBeanDefinitionNames()) {
+            System.out.println(name);
+        }
+    }
+
+    @Configuration // 本项目的配置类
+    @Import(MyImportSelector.class)
+    static class Config {
+    }
+
+    static class MyImportSelector implements DeferredImportSelector {
+        @Override
+        public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+            return new String[]{AutoConfiguration.class.getName()};
+        }
+    }
+
+    static class MyCondition implements Condition {
+        @Override
+        public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+            Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnClass.class.getName());
+            String className = attributes.get("className").toString();
+            boolean exists = (boolean) attributes.get("exists");
+            boolean present = ClassUtils.isPresent(className, null);
+            return exists ? present : !present;
+        }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD, ElementType.TYPE})
+    @Conditional(MyCondition.class)
+    @interface ConditionalOnClass {
+        /**
+         * true 判断存在 false 判断不存在
+         * @return
+         */
+        boolean exists();
+
+        /**
+         * 要判断的类名
+         * @return
+         */
+        String className();
+    }
+
+    @Configuration // 第三方的配置类
+    @ConditionalOnClass(exists = true, className = "com.alibaba.druid.pool.DruidDataSource")
+    static class AutoConfiguration {
+        @Bean
+        public Bean1 bean1() {
+            return new Bean1();
+        }
+    }
+
+    static class Bean1 {
+    }
+
+}
+```
