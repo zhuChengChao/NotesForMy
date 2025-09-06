@@ -158,46 +158,16 @@ public class Test02 {
     }
 }
 
+@Data
 class Emp {
     private String name;
     private Dept dept;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Dept getDept() {
-        return dept;
-    }
-
-    public void setDept(Dept dept) {
-        this.dept = dept;
-    }
 }
 
+@Data
 class Dept {
     private String name;
     private List<Emp> emps;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<Emp> getEmps() {
-        return emps;
-    }
-
-    public void setEmps(List<Emp> emps) {
-        this.emps = emps;
-    }
 }
 ```
 
@@ -445,177 +415,176 @@ public class Demo1_4 {
 
 ##### jmap 工具使用
 
-1. 运行上述程序
+1）运行上述程序
 
-2. 输入 jps 查看当前 java 进程
+2）输入 jps 查看当前 java 进程
 
-   ```j
-   7760
-   13380  Jps
-   10776  RemoteMavenServer
-   6556   Test6
-   13864  Launcher
-   ```
-
-3. 不同时刻使用 jmap 命令
-
-   1. 输出1时的时间点快照：
-
-   ```java
-   C:\Users\ZhuCC>jmap -heap 6556
-   Attaching to process ID 6556, please wait...
-   Debugger attached successfully.
-   Server compiler detected.
-   JVM version is 25.241-b07
-   
-   using thread-local object allocation.
-   Parallel GC with 4 thread(s)
-   
-   Heap Configuration:   // 堆配置信息
-      MinHeapFreeRatio         = 0
-      MaxHeapFreeRatio         = 100
-      MaxHeapSize              = 4278190080 (4080.0MB)  // 最大堆内存
-      NewSize                  = 89128960 (85.0MB)
-      MaxNewSize               = 1426063360 (1360.0MB)
-      OldSize                  = 179306496 (171.0MB)
-      NewRatio                 = 2
-      SurvivorRatio            = 8
-      MetaspaceSize            = 21807104 (20.796875MB)
-      CompressedClassSpaceSize = 1073741824 (1024.0MB)
-      MaxMetaspaceSize         = 17592186044415 MB
-      G1HeapRegionSize         = 0 (0.0MB)
-   
-   Heap Usage:  		 // 堆内存占用
-   PS Young Generation  
-   Eden Space:
-      capacity = 67108864 (64.0MB)
-      used     = 5370928 (5.1221160888671875MB)  // 对比下面
-      free     = 61737936 (58.87788391113281MB)
-      8.00330638885498% used
-   From Space:
-      capacity = 11010048 (10.5MB)
-      used     = 0 (0.0MB)
-      free     = 11010048 (10.5MB)
-      0.0% used
-   To Space:
-      capacity = 11010048 (10.5MB)
-      used     = 0 (0.0MB)
-      free     = 11010048 (10.5MB)
-      0.0% used
-   PS Old Generation
-      capacity = 179306496 (171.0MB)
-      used     = 0 (0.0MB)
-      free     = 179306496 (171.0MB)
-      0.0% used
-   
-   1759 interned Strings occupying 157688 bytes.
-   ```
-
-   2. 输出2时的时间点快照：这时`byte[] array`已经被创建了
-
-   ```java
-   C:\Users\ZhuCC>jmap -heap 6556
-   Attaching to process ID 6556, please wait...
-   Debugger attached successfully.
-   Server compiler detected.
-   JVM version is 25.241-b07
-   
-   using thread-local object allocation.
-   Parallel GC with 4 thread(s)
-   
-   Heap Configuration:
-      MinHeapFreeRatio         = 0
-      MaxHeapFreeRatio         = 100
-      MaxHeapSize              = 4278190080 (4080.0MB)
-      NewSize                  = 89128960 (85.0MB)
-      MaxNewSize               = 1426063360 (1360.0MB)
-      OldSize                  = 179306496 (171.0MB)
-      NewRatio                 = 2
-      SurvivorRatio            = 8
-      MetaspaceSize            = 21807104 (20.796875MB)
-      CompressedClassSpaceSize = 1073741824 (1024.0MB)
-      MaxMetaspaceSize         = 17592186044415 MB
-      G1HeapRegionSize         = 0 (0.0MB)
-   
-   Heap Usage:
-   PS Young Generation
-   Eden Space:
-      capacity = 67108864 (64.0MB)
-      // 对比上面，这里的used已经增加了10Mb空间了，这就是新创建的byte数组所占用的空间
-      used     = 15856704 (15.12213134765625MB)  
-      free     = 51252160 (48.87786865234375MB)
-      23.62833023071289% used
-   From Space:
-      capacity = 11010048 (10.5MB)
-      used     = 0 (0.0MB)
-      free     = 11010048 (10.5MB)
-      0.0% used
-   To Space:
-      capacity = 11010048 (10.5MB)
-      used     = 0 (0.0MB)
-      free     = 11010048 (10.5MB)
-      0.0% used
-   PS Old Generation
-      capacity = 179306496 (171.0MB)
-      used     = 0 (0.0MB)
-      free     = 179306496 (171.0MB)
-      0.0% used
-   
-   1760 interned Strings occupying 157736 bytes.
-   ```
+```j
+7760
+13380  Jps
+10776  RemoteMavenServer
+6556   Test6
+13864  Launcher
 ```
-   
-3. 输出3时的时间点快照：这时`byte[] array`已经被垃圾回收了
-   
-   ```java
-   C:\Users\ZhuCC>jmap -heap 6556
-   Attaching to process ID 6556, please wait...
-   Debugger attached successfully.
-   Server compiler detected.
-   JVM version is 25.241-b07
-   
-   using thread-local object allocation.
-   Parallel GC with 4 thread(s)
-   
-   Heap Configuration:
-      MinHeapFreeRatio         = 0
-      MaxHeapFreeRatio         = 100
-      MaxHeapSize              = 4278190080 (4080.0MB)
-      NewSize                  = 89128960 (85.0MB)
-      MaxNewSize               = 1426063360 (1360.0MB)
-      OldSize                  = 179306496 (171.0MB)
-      NewRatio                 = 2
-      SurvivorRatio            = 8
-      MetaspaceSize            = 21807104 (20.796875MB)
-      CompressedClassSpaceSize = 1073741824 (1024.0MB)
-      MaxMetaspaceSize         = 17592186044415 MB
-      G1HeapRegionSize         = 0 (0.0MB)
-   
-   Heap Usage:
-   PS Young Generation
-   Eden Space:
-      capacity = 67108864 (64.0MB)
-      // byte数组已经被释放了，进行了垃圾回收，使用量又变小了
-      used     = 1342200 (1.2800216674804688MB)  
-      free     = 65766664 (62.71997833251953MB)
-      2.0000338554382324% used
-   From Space:
-      capacity = 11010048 (10.5MB)
-      used     = 0 (0.0MB)
-      free     = 11010048 (10.5MB)
-      0.0% used
-   To Space:
-      capacity = 11010048 (10.5MB)
-      used     = 0 (0.0MB)
-      free     = 11010048 (10.5MB)
-      0.0% used
-   PS Old Generation
-      capacity = 179306496 (171.0MB)
-      used     = 665560 (0.6347274780273438MB)
-      free     = 178640936 (170.36527252197266MB)
-      0.3711856596651133% used
-   
-   1746 interned Strings occupying 156744 bytes.
+
+3）不同时刻使用 jmap 命令
+
+3.1）输出1时的时间点快照：
+
+```java
+C:\Users\ZhuCC>jmap -heap 6556
+Attaching to process ID 6556, please wait...
+Debugger attached successfully.
+Server compiler detected.
+JVM version is 25.241-b07
+
+using thread-local object allocation.
+Parallel GC with 4 thread(s)
+
+Heap Configuration:   // 堆配置信息
+   MinHeapFreeRatio         = 0
+   MaxHeapFreeRatio         = 100
+   MaxHeapSize              = 4278190080 (4080.0MB)  // 最大堆内存
+   NewSize                  = 89128960 (85.0MB)
+   MaxNewSize               = 1426063360 (1360.0MB)
+   OldSize                  = 179306496 (171.0MB)
+   NewRatio                 = 2
+   SurvivorRatio            = 8
+   MetaspaceSize            = 21807104 (20.796875MB)
+   CompressedClassSpaceSize = 1073741824 (1024.0MB)
+   MaxMetaspaceSize         = 17592186044415 MB
+   G1HeapRegionSize         = 0 (0.0MB)
+
+Heap Usage:  		 // 堆内存占用
+PS Young Generation  
+Eden Space:
+   capacity = 67108864 (64.0MB)
+   used     = 5370928 (5.1221160888671875MB)  // 对比下面
+   free     = 61737936 (58.87788391113281MB)
+   8.00330638885498% used
+From Space:
+   capacity = 11010048 (10.5MB)
+   used     = 0 (0.0MB)
+   free     = 11010048 (10.5MB)
+   0.0% used
+To Space:
+   capacity = 11010048 (10.5MB)
+   used     = 0 (0.0MB)
+   free     = 11010048 (10.5MB)
+   0.0% used
+PS Old Generation
+   capacity = 179306496 (171.0MB)
+   used     = 0 (0.0MB)
+   free     = 179306496 (171.0MB)
+   0.0% used
+
+1759 interned Strings occupying 157688 bytes.
+```
+
+3.2）输出2时的时间点快照：这时`byte[] array`已经被创建了
+
+```java
+C:\Users\ZhuCC>jmap -heap 6556
+Attaching to process ID 6556, please wait...
+Debugger attached successfully.
+Server compiler detected.
+JVM version is 25.241-b07
+
+using thread-local object allocation.
+Parallel GC with 4 thread(s)
+
+Heap Configuration:
+   MinHeapFreeRatio         = 0
+   MaxHeapFreeRatio         = 100
+   MaxHeapSize              = 4278190080 (4080.0MB)
+   NewSize                  = 89128960 (85.0MB)
+   MaxNewSize               = 1426063360 (1360.0MB)
+   OldSize                  = 179306496 (171.0MB)
+   NewRatio                 = 2
+   SurvivorRatio            = 8
+   MetaspaceSize            = 21807104 (20.796875MB)
+   CompressedClassSpaceSize = 1073741824 (1024.0MB)
+   MaxMetaspaceSize         = 17592186044415 MB
+   G1HeapRegionSize         = 0 (0.0MB)
+
+Heap Usage:
+PS Young Generation
+Eden Space:
+   capacity = 67108864 (64.0MB)
+   // 对比上面，这里的used已经增加了10Mb空间了，这就是新创建的byte数组所占用的空间
+   used     = 15856704 (15.12213134765625MB)  
+   free     = 51252160 (48.87786865234375MB)
+   23.62833023071289% used
+From Space:
+   capacity = 11010048 (10.5MB)
+   used     = 0 (0.0MB)
+   free     = 11010048 (10.5MB)
+   0.0% used
+To Space:
+   capacity = 11010048 (10.5MB)
+   used     = 0 (0.0MB)
+   free     = 11010048 (10.5MB)
+   0.0% used
+PS Old Generation
+   capacity = 179306496 (171.0MB)
+   used     = 0 (0.0MB)
+   free     = 179306496 (171.0MB)
+   0.0% used
+
+1760 interned Strings occupying 157736 bytes.
+```
+
+3.3）输出3时的时间点快照：这时`byte[] array`已经被垃圾回收了
+
+```java
+C:\Users\ZhuCC>jmap -heap 6556
+Attaching to process ID 6556, please wait...
+Debugger attached successfully.
+Server compiler detected.
+JVM version is 25.241-b07
+
+using thread-local object allocation.
+Parallel GC with 4 thread(s)
+
+Heap Configuration:
+   MinHeapFreeRatio         = 0
+   MaxHeapFreeRatio         = 100
+   MaxHeapSize              = 4278190080 (4080.0MB)
+   NewSize                  = 89128960 (85.0MB)
+   MaxNewSize               = 1426063360 (1360.0MB)
+   OldSize                  = 179306496 (171.0MB)
+   NewRatio                 = 2
+   SurvivorRatio            = 8
+   MetaspaceSize            = 21807104 (20.796875MB)
+   CompressedClassSpaceSize = 1073741824 (1024.0MB)
+   MaxMetaspaceSize         = 17592186044415 MB
+   G1HeapRegionSize         = 0 (0.0MB)
+
+Heap Usage:
+PS Young Generation
+Eden Space:
+   capacity = 67108864 (64.0MB)
+   // byte数组已经被释放了，进行了垃圾回收，使用量又变小了
+   used     = 1342200 (1.2800216674804688MB)  
+   free     = 65766664 (62.71997833251953MB)
+   2.0000338554382324% used
+From Space:
+   capacity = 11010048 (10.5MB)
+   used     = 0 (0.0MB)
+   free     = 11010048 (10.5MB)
+   0.0% used
+To Space:
+   capacity = 11010048 (10.5MB)
+   used     = 0 (0.0MB)
+   free     = 11010048 (10.5MB)
+   0.0% used
+PS Old Generation
+   capacity = 179306496 (171.0MB)
+   used     = 665560 (0.6347274780273438MB)
+   free     = 178640936 (170.36527252197266MB)
+   0.3711856596651133% used
+
+1746 interned Strings occupying 156744 bytes.
 ```
 
 ##### jconsole 工具使用
@@ -707,13 +676,15 @@ PS Old Generation
 
 > j + visual + vm
 
-1. 控制台输入命令：`jvisualvm`
-2. 选择对于的 java 进程
-3. `监视栏`中的 `堆Dump`可以抓取堆的快照
-   1. 其中有功能可以查找 `堆中最大的对象`
-   2. 可以看到`ArrayList`对象占用的内存最大，点击进入查看详细信息
-   3. 又可以看到`ArrayList`中的`elementData`存储了 `Student`对象，对象内的 byte[] 属性大约占用了1Mb的空间
-   4. 而`ArrayList`中有200个`Student` 对象，即占用了200Mb的空间大小
+控制台输入命令：`jvisualvm`
+
+选择对于的 java 进程
+
+`监视栏`中的 `堆Dump`可以抓取堆的快照
+1. 其中有功能可以查找 `堆中最大的对象`
+2. 可以看到`ArrayList`对象占用的内存最大，点击进入查看详细信息
+3. 又可以看到`ArrayList`中的`elementData`存储了 `Student`对象，对象内的 byte[] 属性大约占用了1Mb的空间
+4. 而`ArrayList`中有200个`Student` 对象，即占用了200Mb的空间大小
 
 ## 5. 方法区
 

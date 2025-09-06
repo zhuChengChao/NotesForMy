@@ -670,40 +670,38 @@ public static void main(String[] args) throws InterruptedException {
 >     Random r = new Random();
 >    
 >     for (int i = 0; i < 10; i++) {
->      int j = i;
+>         int j = i;
 >         service.submit(()->{
 >             for (int k = 0; k <= 100; k++) {
->                 try {
->                     Thread.sleep(r.nextInt(100));
->                 }catch (InterruptedException e){
->    
->                 }
->              all[j] = Thread.currentThread().getName() + "(" + (k + "%") + ")";
->                 System.out.print("\r" + Arrays.toString(all));  // "\r":在同一行刷新输出
+>               try {
+>                 Thread.sleep(r.nextInt(100));
+>               }catch (InterruptedException e){
+>               }
+>               all[j] = Thread.currentThread().getName() + "(" + (k + "%") + ")";
+>               System.out.print("\r" + Arrays.toString(all));  // "\r":在同一行刷新输出
 >             }
 >             latch.countDown();
 >         });
 >     }
 >    
 >     latch.await();
->  System.out.println("\n游戏开始...");
->     service.shutdown();
->    
+>     System.out.println("\n游戏开始...");
+>   service.shutdown();
 >    }
-> ```
-> 
+>    ```
+>    
 > 中间输出：
->
+> 
 > ```
 >[t0(38%), t1(44%), t2(41%), t3(39%), t4(41%), t5(39%), t6(32%), t7(43%), t8(41%), t9(36%)]
 > ```
-> 
-> 最后输出：
 >
+> 最后输出：
+> 
 > ```
 >[t0(100%), t1(100%), t2(100%), t3(100%), t4(100%), t5(100%), t6(100%), t7(100%), t8(100%), t9(100%)]
 > 游戏开始...
-> ```
+>```
 
 ##### 应用：同步等待多个远程调用结束
 

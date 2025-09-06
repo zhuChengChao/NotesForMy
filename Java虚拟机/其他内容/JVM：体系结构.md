@@ -21,7 +21,7 @@ Java GC 主要回收的是 **方法区** 和 **堆** 中的内容
 
 ### 引用计数
 
-> 这是不是垃圾回收算法吧？？？:dog2:
+> 这是不是垃圾回收算法吧？？？:dog:
 
 ![引用计数](https://xycnotes.oss-cn-hangzhou.aliyuncs.com/img/202206251633189.png)
 

@@ -278,7 +278,6 @@ class Room{
         }
     }
 }
-
 ```
 
 ### 3.3 方法上的 synchronized
@@ -300,7 +299,6 @@ class Test{
         }
     }
 }
-
 ```
 
 锁住类对象——**类锁**
@@ -319,7 +317,6 @@ class Test{
         }
     }
 }
-
 ```
 
 #### 不加 synchronized 的方法

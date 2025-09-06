@@ -9,7 +9,7 @@
 Map 接口中定义了很多方法，常用的如下：
 
 * `public V put(K key, V value)` : 把指定的键与指定的值添加到Map集合中。
-* `public V remove(Object key)` : 把指定的键所对应的键值对元素 在Map集合中删除，返回被删除元素的值。
+* `public V remove(Object key)` : 把指定的键所对应的键值对元素在Map集合中删除，返回被删除元素的值。
 * `public V get(Object key)` : 根据指定的键，在Map集合中获取对应的值。
 * `public Set<K> keySet()` : 获取Map集合中所有的键，存储到Set集合中。
 * `public Set<Map.Entry<K,V>> entrySet()` : 获取到Map集合中所有的键值对对象的集合(Set 集合)。

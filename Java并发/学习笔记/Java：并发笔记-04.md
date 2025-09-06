@@ -318,7 +318,7 @@ Found 1 deadlock.
 ```
 
 - 避免死锁要注意加锁顺序
-- 另外如果由于某个线程进入了死循环，导致其它线程一直等待，对于这种情况 linux 下可以通过 top 先定位到CPU 占用高的 Java 进程，再利用 top -Hp 进程 id 来定位是哪个线程，最后再用 jstack 排查
+- 另外如果由于某个线程进入了死循环，导致其它线程一直等待，对于这种情况 linux 下可以通过 top 先定位到 CPU 占用高的 Java 进程，再利用 top -Hp 进程 id 来定位是哪个线程，最后再用 jstack 排查
 
 #### 哲学家就餐问题
 
@@ -461,7 +461,6 @@ cn.itcast.Philosopher.run(TestDinner.java:48)
 堆栈跟踪:
 cn.itcast.Philosopher.run(TestDinner.java:48)
 	- 已锁定 cn.itcast.Chopstick@7f31245a (筷子4)
-
 ```
 
 这种线程没有按预期结束，执行不下去的情况，归类为【活跃性】问题，除了死锁以外，还有活锁和饥饿者两种情况

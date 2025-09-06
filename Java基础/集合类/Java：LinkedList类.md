@@ -18,7 +18,7 @@
 
 > JDK1.6 之前是双向循环链表、**JDK1.7 之后取消了循环**
 >
-> 就是这样的结构，使得链表可以作为**队列/双端队列**使用，在刷题的时候无敌 :dog2:
+> 就是这样的结构，使得链表可以作为**队列/双端队列**使用，在刷题的时候无敌 :dog:
 
 ## 成员属性
 
@@ -272,7 +272,7 @@ public E remove(int index) {
 >    // ArrayList
 >    public void add(int index, E element) {
 >        rangeCheckForAdd(index);
->          
+>             
 >        ensureCapacityInternal(size + 1);  // Increments modCount!!
 >        // 这个是一个native的方法
 >        System.arraycopy(elementData, index, elementData, index + 1,
@@ -280,12 +280,12 @@ public E remove(int index) {
 >        elementData[index] = element;
 >        size++;
 >    }
->          
+>             
 >    // 比较需要插入的 index 与链表长度
 >    // 小于链表长度一般则从而开始遍历，反之从尾开始遍历
 >    Node<E> node(int index) {
 >        // assert isElementIndex(index);
->          
+>             
 >        if (index < (size >> 1)) {   // 小于链表长度的一半，则从头开始遍历
 >            Node<E> x = first;
 >            for (int i = 0; i < index; i++)

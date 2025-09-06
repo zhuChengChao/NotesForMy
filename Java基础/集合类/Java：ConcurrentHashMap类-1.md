@@ -1,4 +1,4 @@
-# image/(概述)
+# Java：ConcurrentHashMap类-概述
 
 > 对 Java 中的 **ConcurrentHashMap类**，做一个微不足道的小小小小记，分三篇博客，本文为第一篇。
 
@@ -53,7 +53,7 @@ Segment 继承了 ReentrantLock，所以它就是一种可重入锁（ReentrantL
 所以，**对于同一个 Segment 的操作才需考虑线程同步，不同的 Segment 则无需考虑**。Segment 类似于 HashMap，一个 Segment 维护着一个HashEntry 数组：
 
 ```java
-transient volatile  HashEntry<K,V>[]  table;
+transient volatile HashEntry<K,V>[] table;
 ```
 
 HashEntry 是目前我们提到的最小的逻辑处理单元了。**一个 ConcurrentHashMap 维护一个 Segment 数组，一个 Segment 维护一个 HashEntry 数组。**
@@ -106,7 +106,7 @@ Unsafe 类相当于是一个 Java 语言中的后门类，**提供了硬件级�
 > 这个类是获取对象的偏移情况，而在ConcurrentHashMap中体现的就是数组对象，后续API中就以数组来进行说明
 
 - `public native int arrayBaseOffset(Class<?> var1)`：获取数组的基础偏移量；
-- `public native int arrayIndexScale(Class<?> var1)`：获取数组中元素的偏移间隔，要获取对应所以的元素，将索引号和该值相乘，获得数组中指定角标元素的偏移量
+- `public native int arrayIndexScale(Class<?> var1)`：获取数组中元素的偏移间隔，要获取对应索引的元素，将索引号和该值相乘，获得数组中指定角标元素的偏移量
 - `public native Object getObjectVolatile(Object var1, long var2)`：获取对象上的属性值或者数组中的元素
 - `public native Object getObject(Object var1, long var2)`：获取对象上的属性值或者数组中的元素，已过时
 - `public native void putOrderedObject(Object var1, long var2, Object var4)`：设置对象的属性值或者数组中某个角标的元素，**更高效，但不保证线程间即时可见性**

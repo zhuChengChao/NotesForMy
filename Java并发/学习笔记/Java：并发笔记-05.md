@@ -99,10 +99,10 @@ putstatic i // 线程2-将修改后的值存入静态变量i 静态变量i=-1
 >
 > ```java
 > public void println(boolean x) {
->     synchronized (this) {
->         print(x);
->         newLine();
->     }
+>    	synchronized (this) {
+>        	print(x);
+>        	newLine();
+>    	}
 > }
 > ```
 
@@ -198,7 +198,6 @@ public class MonitorService {
 public final class Singleton{
     // 构造函数私有化
     private Singleton() {
-        
     }
     
     private static Singleton INSTANCE = null;

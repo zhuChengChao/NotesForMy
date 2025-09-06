@@ -356,7 +356,7 @@ final void lock() {
     if (compareAndSetState(0, 1))
         setExclusiveOwnerThread(Thread.currentThread());
     else
-        // 上述返回false，则B线程此时进入该出执行
+        // 上述返回false，则B线程此时进入该处执行
         acquire(1);
 }
 

@@ -1051,7 +1051,7 @@ public static void main(String[] args) {
 
 #### 两阶段终止模式
 
-![终止模式](Java：并发笔记-01\终止模式.PNG)
+![终止模式](image/终止模式.PNG)
 
 **利用 isInterrupted**
 
